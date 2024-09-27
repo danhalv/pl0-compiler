@@ -1,0 +1,5 @@
+services:
+  run:
+    build: .
+    container_name: pl0-compiler_run
+    command: bash -c "make hello-world && ./hello-world"
