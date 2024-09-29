@@ -15,3 +15,7 @@ services:
     build: .
     container_name: pl0-compiler_run
     command: bash -c "make hello-world && ./hello-world"
+  test:
+    build: .
+    container_name: pl0-compiler_test
+    command: bash -c "make all && ctest --output-on-failure"

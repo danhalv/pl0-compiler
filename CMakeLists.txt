@@ -9,4 +9,7 @@ set(CMAKE_CXX_CLANG_TIDY "/usr/bin/clang-tidy-18")
 include(cmake/clang-format.cmake)
 include(cmake/cmake-format.cmake)
 
+enable_testing()
+add_subdirectory(test)
+
 add_executable(hello-world main.cc)

@@ -12,11 +12,17 @@ commands)
 Hello world example:\
 `docker-compose up --build run`
 
+build:\
+`docker-compose up --build build`
+
 clang-format-check:\
 `docker-compose up --build clang-format-check`
 
 cmake-format-check:\
 `docker-compose up --build cmake-format-check`
+
+test:\
+`docker-compose up --build test`
 
 ## Development
 For convenient access to `clang-format` and `cmake-format` commands:
