@@ -1,5 +1,21 @@
 services:
+  build:
+    build: .
+    container_name: pl0-compiler_build
+    command: bash -c "make all"
+  clang-format-check:
+    build: .
+    container_name: pl0-compiler_clang-format-check
+    command: bash -c "make clang-format-check"
+  cmake-format-check:
+    build: .
+    container_name: pl0-compiler_cmake-format-check
+    command: bash -c "make cmake-format-check"
   run:
     build: .
     container_name: pl0-compiler_run
     command: bash -c "make hello-world && ./hello-world"
+  test:
+    build: .
+    container_name: pl0-compiler_test
+    command: bash -c "make all && ctest --output-on-failure"

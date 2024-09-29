@@ -1,0 +1,7 @@
+Checks:
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*
+
+# warnings from checks above become errors
+WarningsAsErrors: "*"

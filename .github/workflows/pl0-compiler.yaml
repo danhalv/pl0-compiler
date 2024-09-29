@@ -1,0 +1,45 @@
+name: pl0-compiler-ci
+run-name: ${{ github.actor }} is running GitHub Actions on pl0-compiler commit
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build commit
+        run: |
+          if ! docker compose up --build --abort-on-container-exit build
+          then
+            exit 1
+          fi
+  clang-format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: check c++ formatting
+        run: |
+          if ! docker compose up --build --abort-on-container-exit clang-format-check
+          then
+            exit 1
+          fi
+  cmake-format-check:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: check cmake formatting
+          run: |
+            if ! docker compose up --build --abort-on-container-exit cmake-format-check
+            then
+              exit 1
+            fi
+  test:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: run tests on commit
+          run: |
+            if ! docker compose up --build --abort-on-container-exit test
+            then
+              exit 1
+            fi
