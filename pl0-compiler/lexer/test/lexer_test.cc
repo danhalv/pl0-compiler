@@ -7,32 +7,7 @@
 #include <memory>
 #include <vector>
 
-TEST(LexerTest, lexEmptyText)
-{
-  const auto emptyText = std::vector<unsigned char>{};
-  ASSERT_EQ(pl0c::lexer::run(emptyText).size(), 0);
-}
-
-TEST(LexerTest, lexColonToken)
-{
-  const auto text = std::vector<unsigned char>{':'};
-  ASSERT_EQ(*pl0c::lexer::run(text).front(),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::COLON});
-}
-
-TEST(LexerTest, lexCommaToken)
-{
-  const auto text = std::vector<unsigned char>{','};
-  ASSERT_EQ(*pl0c::lexer::run(text).front(),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::COMMA});
-}
-
-TEST(LexerTest, lexDotToken)
-{
-  const auto text = std::vector<unsigned char>{'.'};
-  ASSERT_EQ(*pl0c::lexer::run(text).front(),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::DOT});
-}
+// ===LITERAL TESTS===
 
 TEST(LexerTest, lexIdToken)
 {
@@ -63,22 +38,36 @@ TEST(LexerTest, lexIntegerToken)
   EXPECT_EQ(resultToken.getInt(), expectedToken.getInt());
 }
 
+// ===END OF LITERAL TESTS===
+
+// ===PUNCTUATION TESTS===
+
+TEST(LexerTest, lexColonToken)
+{
+  const auto text = std::vector<unsigned char>{':'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::COLON});
+}
+
+TEST(LexerTest, lexCommaToken)
+{
+  const auto text = std::vector<unsigned char>{','};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::COMMA});
+}
+
+TEST(LexerTest, lexDotToken)
+{
+  const auto text = std::vector<unsigned char>{'.'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::DOT});
+}
+
 TEST(LexerTest, lexLeftParenToken)
 {
   const auto text = std::vector<unsigned char>{'('};
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
             pl0c::lexer::Token{pl0c::lexer::TokenType::LEFT_PAREN});
-}
-
-TEST(LexerTest, lexPunctuations)
-{
-  const auto text = std::vector<unsigned char>{',', '.', ';'};
-  const auto tokens = pl0c::lexer::run(text);
-
-  EXPECT_EQ(*tokens.at(0), pl0c::lexer::Token{pl0c::lexer::TokenType::COMMA});
-  EXPECT_EQ(*tokens.at(1), pl0c::lexer::Token{pl0c::lexer::TokenType::DOT});
-  EXPECT_EQ(*tokens.at(2),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::SEMI_COLON});
 }
 
 TEST(LexerTest, lexRightParenToken)
@@ -94,6 +83,19 @@ TEST(LexerTest, lexSemiColonToken)
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
             pl0c::lexer::Token{pl0c::lexer::TokenType::SEMI_COLON});
 }
+
+TEST(LexerTest, lexPunctuations)
+{
+  const auto text = std::vector<unsigned char>{',', '.', ';'};
+  const auto tokens = pl0c::lexer::run(text);
+
+  EXPECT_EQ(*tokens.at(0), pl0c::lexer::Token{pl0c::lexer::TokenType::COMMA});
+  EXPECT_EQ(*tokens.at(1), pl0c::lexer::Token{pl0c::lexer::TokenType::DOT});
+  EXPECT_EQ(*tokens.at(2),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::SEMI_COLON});
+}
+
+// ===END OF PUNCTUATION TESTS===
 
 // ===OPERATOR TESTS===
 
@@ -175,3 +177,13 @@ TEST(LexerTest, lexGeToken)
 }
 
 // ===END OF OPERATOR TESTS===
+
+// ===OTHER TESTS===
+
+TEST(LexerTest, lexEmptyText)
+{
+  const auto emptyText = std::vector<unsigned char>{};
+  ASSERT_EQ(pl0c::lexer::run(emptyText).size(), 0);
+}
+
+// ===END OF OTHER TESTS===
