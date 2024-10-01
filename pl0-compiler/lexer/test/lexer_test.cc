@@ -94,3 +94,84 @@ TEST(LexerTest, lexSemiColonToken)
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
             pl0c::lexer::Token{pl0c::lexer::TokenType::SEMI_COLON});
 }
+
+// ===OPERATOR TESTS===
+
+TEST(LexerTest, lexWalrusToken)
+{
+  const auto text = std::vector<unsigned char>{':', '='};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::WALRUS});
+}
+
+TEST(LexerTest, lexAsteriskToken)
+{
+  const auto text = std::vector<unsigned char>{'*'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::ASTERISK});
+}
+
+TEST(LexerTest, lexSlashToken)
+{
+  const auto text = std::vector<unsigned char>{'/'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::SLASH});
+}
+
+TEST(LexerTest, lexPlusToken)
+{
+  const auto text = std::vector<unsigned char>{'+'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::PLUS});
+}
+
+TEST(LexerTest, lexMinusToken)
+{
+  const auto text = std::vector<unsigned char>{'-'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::MINUS});
+}
+
+TEST(LexerTest, lexAssigmentToken)
+{
+  const auto text = std::vector<unsigned char>{'='};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::ASSIGNMENT});
+}
+
+TEST(LexerTest, lexDiamondToken)
+{
+  const auto text = std::vector<unsigned char>{'<', '>'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::DIAMOND});
+}
+
+TEST(LexerTest, lexLeqToken)
+{
+  const auto text = std::vector<unsigned char>{'<', '='};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::LEQ});
+}
+
+TEST(LexerTest, lexLeToken)
+{
+  const auto text = std::vector<unsigned char>{'<'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::LE});
+}
+
+TEST(LexerTest, lexGeqToken)
+{
+  const auto text = std::vector<unsigned char>{'>', '='};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::GEQ});
+}
+
+TEST(LexerTest, lexGeToken)
+{
+  const auto text = std::vector<unsigned char>{'>'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::GE});
+}
+
+// ===END OF OPERATOR TESTS===

@@ -20,7 +20,16 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
     switch (text.at(i))
     {
     case ':': {
-      tokens.push_back(std::make_shared<Token>(TokenType::COLON));
+      // := walrus operator
+      if ((i + 1) < text.size() && '=' == text.at(i + 1))
+      {
+        tokens.push_back(std::make_shared<Token>(TokenType::WALRUS));
+        ++i;
+      }
+      else
+      {
+        tokens.push_back(std::make_shared<Token>(TokenType::COLON));
+      }
       break;
     }
     case ',': {
@@ -41,6 +50,70 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
     }
     case ';': {
       tokens.push_back(std::make_shared<Token>(TokenType::SEMI_COLON));
+      break;
+    }
+    case '*': {
+      tokens.push_back(std::make_shared<Token>(TokenType::ASTERISK));
+      break;
+    }
+    case '/': {
+      tokens.push_back(std::make_shared<Token>(TokenType::SLASH));
+      break;
+    }
+    case '+': {
+      tokens.push_back(std::make_shared<Token>(TokenType::PLUS));
+      break;
+    }
+    case '-': {
+      tokens.push_back(std::make_shared<Token>(TokenType::MINUS));
+      break;
+    }
+    case '=': {
+      tokens.push_back(std::make_shared<Token>(TokenType::ASSIGNMENT));
+      break;
+    }
+    case '<': {
+      if ((i + 1) < text.size())
+      {
+        switch (text.at(i + 1))
+        {
+        // <> diamond operator
+        case '>': {
+          tokens.push_back(std::make_shared<Token>(TokenType::DIAMOND));
+          ++i;
+          break;
+        }
+        // <= less than or equal to operator
+        case '=': {
+          tokens.push_back(std::make_shared<Token>(TokenType::LEQ));
+          ++i;
+          break;
+        }
+        // < less than operator
+        default: {
+          tokens.push_back(std::make_shared<Token>(TokenType::LE));
+          break;
+        }
+        }
+      }
+      else
+      {
+        tokens.push_back(std::make_shared<Token>(TokenType::LE));
+      }
+      break;
+    }
+    case '>': {
+      // >= greater than or equal to operator
+      if ((i + 1) < text.size() && '=' == text.at(i + 1))
+      {
+        tokens.push_back(std::make_shared<Token>(TokenType::GEQ));
+        ++i;
+      }
+      // > greater than operator
+      else
+      {
+        tokens.push_back(std::make_shared<Token>(TokenType::GE));
+      }
       break;
     }
     default: {

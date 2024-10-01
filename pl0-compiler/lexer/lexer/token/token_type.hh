@@ -11,6 +11,19 @@ enum class TokenType
   ID,
   INTEGER,
   // end of literals
+  // operators
+  WALRUS,
+  ASTERISK,
+  SLASH,
+  PLUS,
+  MINUS,
+  ASSIGNMENT,
+  DIAMOND,
+  LEQ,
+  LE,
+  GEQ,
+  GE,
+  // end of operators
   // punctuation
   COLON,
   COMMA,
