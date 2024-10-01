@@ -1,7 +1,9 @@
 #include "lexer/lexer.hh"
+#include "lexer/token/id_token.hh"
 #include "lexer/token/token.hh"
 
 #include <gtest/gtest.h>
+#include <memory>
 #include <vector>
 
 TEST(LexerTest, lexEmptyText)
@@ -29,6 +31,20 @@ TEST(LexerTest, lexDotToken)
   const auto text = std::vector<unsigned char>{'.'};
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
             pl0c::lexer::Token{pl0c::lexer::TokenType::DOT});
+}
+
+TEST(LexerTest, lexIdToken)
+{
+  const auto identifier = std::string{"anIdToken123"};
+  auto text = std::vector<unsigned char>(identifier.length());
+  text.insert(text.begin(), identifier.begin(), identifier.end());
+
+  const auto result = pl0c::lexer::run(text);
+  auto resultToken =
+      *std::dynamic_pointer_cast<pl0c::lexer::IdToken>(result.front());
+  const auto expectedToken = pl0c::lexer::IdToken(identifier);
+
+  ASSERT_EQ(resultToken, expectedToken);
 }
 
 TEST(LexerTest, lexLeftParenToken)

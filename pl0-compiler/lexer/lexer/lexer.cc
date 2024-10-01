@@ -1,5 +1,10 @@
 #include "lexer/lexer.hh"
 
+#include "lexer/token/id_token.hh"
+#include "lexer/token/token_type.hh"
+
+#include <cctype>
+
 namespace pl0c
 {
 namespace lexer
@@ -38,6 +43,23 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       break;
     }
     default: {
+      // Identifier token
+      // ID           ::= Letter AlphaNumeric*
+      // AlphaNumeric ::= Letter|Digit
+      // Letter       ::= a|...|z|A|...|Z
+      // Digit        ::= 0|...|9
+      if (std::isalpha(text.at(i)))
+      {
+        auto identifier = std::string{text.at(i)};
+        ++i;
+        while (std::isalnum(text.at(i)))
+        {
+          identifier += std::string{text.at(i)};
+          ++i;
+        }
+
+        tokens.push_back(std::make_shared<IdToken>(IdToken(identifier)));
+      }
       break;
     }
     }

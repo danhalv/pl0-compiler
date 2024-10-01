@@ -7,6 +7,7 @@ namespace lexer
 
 enum class TokenType
 {
+  ID,
   // punctuation
   COLON,
   COMMA,
