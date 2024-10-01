@@ -7,15 +7,20 @@ namespace pl0c
 namespace lexer
 {
 
-struct Token
+class Token
 {
+public:
   Token() = delete;
   Token(const TokenType);
+  virtual ~Token();
+
+  virtual auto getType() const -> TokenType;
 
   friend bool operator==(const Token &, const Token &);
   friend bool operator!=(const Token &, const Token &);
 
-  const TokenType type;
+private:
+  const TokenType type_;
 };
 
 bool operator==(const Token &, const Token &);

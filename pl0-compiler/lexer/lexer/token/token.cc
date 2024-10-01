@@ -5,18 +5,27 @@ namespace pl0c
 namespace lexer
 {
 
-Token::Token(const TokenType type_) : type{type_}
+Token::Token(const TokenType type) : type_{type}
 {
+}
+
+Token::~Token()
+{
+}
+
+auto Token::getType() const -> TokenType
+{
+  return type_;
 }
 
 bool operator==(const Token &lhs, const Token &rhs)
 {
-  return (lhs.type == rhs.type);
+  return (lhs.type_ == rhs.type_);
 }
 
 bool operator!=(const Token &lhs, const Token &rhs)
 {
-  return (lhs.type != rhs.type);
+  return (lhs.type_ != rhs.type_);
 }
 
 }; // namespace lexer
