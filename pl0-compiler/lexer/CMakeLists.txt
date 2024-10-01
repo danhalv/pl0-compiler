@@ -1,4 +1,5 @@
-add_library(lexer lexer/lexer.cc lexer/token/token.cc lexer/token/id_token.cc)
+add_library(lexer lexer/lexer.cc lexer/token/token.cc lexer/token/id_token.cc
+                  lexer/token/integer_token.cc)
 target_include_directories(lexer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(GTest REQUIRED)

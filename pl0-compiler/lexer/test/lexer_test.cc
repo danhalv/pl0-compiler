@@ -1,5 +1,6 @@
 #include "lexer/lexer.hh"
 #include "lexer/token/id_token.hh"
+#include "lexer/token/integer_token.hh"
 #include "lexer/token/token.hh"
 
 #include <gtest/gtest.h>
@@ -45,6 +46,21 @@ TEST(LexerTest, lexIdToken)
   const auto expectedToken = pl0c::lexer::IdToken(identifier);
 
   ASSERT_EQ(resultToken, expectedToken);
+}
+
+TEST(LexerTest, lexIntegerToken)
+{
+  const auto integerString = std::string{"09"};
+  auto text = std::vector<unsigned char>(integerString.length());
+  text.insert(text.begin(), integerString.begin(), integerString.end());
+
+  const auto result = pl0c::lexer::run(text);
+  auto resultToken =
+      *std::dynamic_pointer_cast<pl0c::lexer::IntegerToken>(result.front());
+  const auto expectedToken = pl0c::lexer::IntegerToken(integerString);
+
+  EXPECT_EQ(resultToken, expectedToken);
+  EXPECT_EQ(resultToken.getInt(), expectedToken.getInt());
 }
 
 TEST(LexerTest, lexLeftParenToken)

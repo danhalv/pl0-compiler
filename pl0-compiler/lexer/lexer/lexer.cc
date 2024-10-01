@@ -1,6 +1,7 @@
 #include "lexer/lexer.hh"
 
 #include "lexer/token/id_token.hh"
+#include "lexer/token/integer_token.hh"
 #include "lexer/token/token_type.hh"
 
 #include <cctype>
@@ -60,6 +61,24 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
 
         tokens.push_back(std::make_shared<IdToken>(IdToken(identifier)));
       }
+
+      // Integer token
+      // Integer  ::= Digit+
+      // Digit    ::= 0|...|9
+      if (std::isdigit(static_cast<int>(text.at(i))))
+      {
+        auto integerString = std::string{text.at(i)};
+        ++i;
+        while (std::isdigit(static_cast<int>(text.at(i))))
+        {
+          integerString += std::string{text.at(i)};
+          ++i;
+        }
+
+        tokens.push_back(
+            std::make_shared<IntegerToken>(IntegerToken(integerString)));
+      }
+
       break;
     }
     }
