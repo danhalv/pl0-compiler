@@ -7,7 +7,14 @@ namespace lexer
 
 enum class TokenType
 {
+  // punctuation
+  COLON,
+  COMMA,
   DOT,
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  SEMI_COLON,
+  // end of punctuation
 };
 
 }; // namespace lexer

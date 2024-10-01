@@ -13,8 +13,28 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
   {
     switch (text.at(i))
     {
+    case ':': {
+      tokens.push_back(std::make_shared<Token>(TokenType::COLON));
+      break;
+    }
+    case ',': {
+      tokens.push_back(std::make_shared<Token>(TokenType::COMMA));
+      break;
+    }
     case '.': {
       tokens.push_back(std::make_shared<Token>(TokenType::DOT));
+      break;
+    }
+    case '(': {
+      tokens.push_back(std::make_shared<Token>(TokenType::LEFT_PAREN));
+      break;
+    }
+    case ')': {
+      tokens.push_back(std::make_shared<Token>(TokenType::RIGHT_PAREN));
+      break;
+    }
+    case ';': {
+      tokens.push_back(std::make_shared<Token>(TokenType::SEMI_COLON));
       break;
     }
     default: {
