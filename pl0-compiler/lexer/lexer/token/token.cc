@@ -18,6 +18,11 @@ auto Token::getType() const -> TokenType
   return type_;
 }
 
+auto Token::toString() const -> std::string
+{
+  return std::string{"Token(" + tokenTypeNameMap.at(this->type_) + ")"};
+}
+
 bool operator==(const Token &lhs, const Token &rhs)
 {
   return (lhs.type_ == rhs.type_);

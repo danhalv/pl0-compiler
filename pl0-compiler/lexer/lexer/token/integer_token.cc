@@ -20,6 +20,11 @@ auto IntegerToken::getIntegerString() const -> std::string
   return integerString_;
 }
 
+auto IntegerToken::toString() const -> std::string
+{
+  return std::string{"IntegerToken(" + this->integerString_ + ")"};
+}
+
 bool operator==(const IntegerToken &lhs, const IntegerToken &rhs)
 {
   return (lhs.integerString_ == rhs.integerString_);

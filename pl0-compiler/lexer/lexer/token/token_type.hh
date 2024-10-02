@@ -1,5 +1,8 @@
 #pragma once
 
+#include <map>
+#include <string>
+
 namespace pl0c
 {
 namespace lexer
@@ -49,6 +52,42 @@ enum class TokenType
   RIGHT_PAREN,
   SEMI_COLON,
   // end of punctuation
+};
+
+const auto tokenTypeNameMap = std::map<TokenType, std::string>{
+    {TokenType::WHITESPACE, "WHITESPACE"},
+    {TokenType::ID, "ID"},
+    {TokenType::INT_LITERAL, "INT_LITERAL"},
+    {TokenType::MODULE, "MODULE"},
+    {TokenType::PROCEDURE, "PROCEDURE"},
+    {TokenType::BEGIN, "BEGIN"},
+    {TokenType::END, "END"},
+    {TokenType::CONST, "CONST"},
+    {TokenType::VAR, "VAR"},
+    {TokenType::INT, "INT"},
+    {TokenType::IF, "IF"},
+    {TokenType::THEN, "THEN"},
+    {TokenType::WHILE, "WHILE"},
+    {TokenType::DO, "DO"},
+    {TokenType::INPUT, "INPUT"},
+    {TokenType::OUTPUT, "OUTPUT"},
+    {TokenType::ODD, "ODD"},
+    {TokenType::WALRUS, "WALRUS"},
+    {TokenType::ASTERISK, "ASTERISK"},
+    {TokenType::SLASH, "SLASH"},
+    {TokenType::PLUS, "PLUS"},
+    {TokenType::MINUS, "MINUS"},
+    {TokenType::ASSIGNMENT, "ASSIGNMENT"},
+    {TokenType::DIAMOND, "DIAMOND"},
+    {TokenType::LEQ, "LEQ"},
+    {TokenType::LE, "LE"},
+    {TokenType::GEQ, "GEQ"},
+    {TokenType::GE, "GE"},
+    {TokenType::COLON, "COMMA"},
+    {TokenType::DOT, "DOT"},
+    {TokenType::LEFT_PAREN, "LEFT_PAREN"},
+    {TokenType::RIGHT_PAREN, "RIGHT_PAREN"},
+    {TokenType::SEMI_COLON, "SEMI_COLON"},
 };
 
 }; // namespace lexer

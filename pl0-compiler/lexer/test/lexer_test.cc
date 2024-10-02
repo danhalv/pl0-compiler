@@ -3,6 +3,7 @@
 #include "lexer/token/integer_token.hh"
 #include "lexer/token/token.hh"
 
+#include <cstdint>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
@@ -353,6 +354,24 @@ TEST(LexerTest, lexEmptyText)
 {
   const auto emptyText = std::vector<unsigned char>{};
   ASSERT_EQ(pl0c::lexer::run(emptyText).size(), 0);
+}
+
+TEST(LexerTest, lexTextWithDifferentTokens)
+{
+  const auto textString = std::string{"procedure proc;\nvar i;\nbegin\nend;"};
+  auto text = std::vector<unsigned char>(textString.length());
+  text.insert(text.begin(), textString.begin(), textString.end());
+
+  const auto actualTokens = pl0c::lexer::run(text);
+  const auto actualTokenString = pl0c::lexer::toString(actualTokens);
+
+  const auto expectedTokenString =
+      std::string("Token(PROCEDURE)Token(WHITESPACE)IdToken(\"proc\")Token("
+                  "SEMI_COLON)Token(WHITESPACE)Token(VAR)Token(WHITESPACE)"
+                  "IdToken(\"i\")Token(SEMI_COLON)Token(WHITESPACE)Token(BEGIN)"
+                  "Token(WHITESPACE)Token(END)Token(SEMI_COLON)");
+
+  ASSERT_TRUE(actualTokenString == expectedTokenString);
 }
 
 // ===END OF OTHER TESTS===

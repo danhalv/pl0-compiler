@@ -12,6 +12,11 @@ IdToken::IdToken(const std::string id) : Token(TokenType::ID), id_{id}
 {
 }
 
+auto IdToken::toString() const -> std::string
+{
+  return std::string{"IdToken(\"" + this->id_ + "\")"};
+}
+
 bool operator==(const IdToken &lhs, const IdToken &rhs)
 {
   return (lhs.id_ == rhs.id_);

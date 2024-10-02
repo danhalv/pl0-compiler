@@ -5,6 +5,7 @@
 #include "lexer/token/token_type.hh"
 
 #include <cctype>
+#include <string>
 
 namespace pl0c
 {
@@ -131,10 +132,9 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       if (std::isalpha(text.at(i)))
       {
         auto identifier = std::string{static_cast<char>(text.at(i))};
-        ++i;
-        while (std::isalnum(text.at(i)))
+        while ((i + 1) < text.size() && std::isalnum(text.at(i + 1)))
         {
-          identifier += std::string{static_cast<char>(text.at(i))};
+          identifier += std::string{static_cast<char>(text.at(i + 1))};
           ++i;
         }
 
@@ -206,10 +206,10 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       if (std::isdigit(static_cast<int>(text.at(i))))
       {
         auto integerString = std::string{static_cast<char>(text.at(i))};
-        ++i;
-        while (std::isdigit(static_cast<int>(text.at(i))))
+        while ((i + 1) < text.size() &&
+               std::isdigit(static_cast<int>(text.at(i + 1))))
         {
-          integerString += std::string{static_cast<char>(text.at(i))};
+          integerString += std::string{static_cast<char>(text.at(i + 1))};
           ++i;
         }
 
@@ -223,6 +223,18 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
   }
 
   return tokens;
+}
+
+auto toString(const std::vector<std::shared_ptr<Token>> &tokens) -> std::string
+{
+  auto tokenString = std::string{};
+
+  for (const auto &token : tokens)
+  {
+    tokenString += token->toString();
+  }
+
+  return tokenString;
 }
 
 }; // namespace lexer

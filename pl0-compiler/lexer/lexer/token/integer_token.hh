@@ -19,6 +19,7 @@ public:
 
   auto getInt() const -> std::int64_t;
   auto getIntegerString() const -> std::string;
+  auto toString() const -> std::string override;
 
   friend bool operator==(const IntegerToken &, const IntegerToken &);
   friend bool operator!=(const IntegerToken &, const IntegerToken &);

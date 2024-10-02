@@ -2,6 +2,8 @@
 
 #include "lexer/token/token_type.hh"
 
+#include <string>
+
 namespace pl0c
 {
 namespace lexer
@@ -14,7 +16,9 @@ public:
   Token(const TokenType);
   virtual ~Token();
 
-  virtual auto getType() const -> TokenType;
+  auto getType() const -> TokenType;
+
+  virtual auto toString() const -> std::string;
 
   friend bool operator==(const Token &, const Token &);
   friend bool operator!=(const Token &, const Token &);
