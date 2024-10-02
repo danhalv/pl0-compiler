@@ -117,7 +117,7 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       break;
     }
     default: {
-      // Identifier token
+      // Identifier token (also handles keywords)
       // ID           ::= Letter AlphaNumeric*
       // AlphaNumeric ::= Letter|Digit
       // Letter       ::= a|...|z|A|...|Z
@@ -132,7 +132,66 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
           ++i;
         }
 
-        tokens.push_back(std::make_shared<IdToken>(IdToken(identifier)));
+        if ("module" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::MODULE));
+        }
+        else if ("procedure" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::PROCEDURE));
+        }
+        else if ("begin" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::BEGIN));
+        }
+        else if ("end" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::END));
+        }
+        else if ("const" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::CONST));
+        }
+        else if ("var" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::VAR));
+        }
+        else if ("int" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::INT));
+        }
+        else if ("if" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::IF));
+        }
+        else if ("then" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::THEN));
+        }
+        else if ("while" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::WHILE));
+        }
+        else if ("do" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::DO));
+        }
+        else if ("input" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::INPUT));
+        }
+        else if ("output" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::OUTPUT));
+        }
+        else if ("odd" == identifier)
+        {
+          tokens.push_back(std::make_shared<Token>(TokenType::ODD));
+        }
+        else
+        {
+          tokens.push_back(std::make_shared<IdToken>(IdToken(identifier)));
+        }
       }
 
       // Integer token

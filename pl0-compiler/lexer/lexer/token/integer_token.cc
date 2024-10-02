@@ -6,7 +6,7 @@ namespace lexer
 {
 
 IntegerToken::IntegerToken(const std::string integerString)
-    : Token(TokenType::INTEGER), integerString_{integerString}
+    : Token(TokenType::INT_LITERAL), integerString_{integerString}
 {
 }
 

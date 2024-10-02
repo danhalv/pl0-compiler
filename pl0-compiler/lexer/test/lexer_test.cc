@@ -40,6 +40,150 @@ TEST(LexerTest, lexIntegerToken)
 
 // ===END OF LITERAL TESTS===
 
+// ===KEYWORD TESTS===
+
+TEST(LexerTest, lexModuleToken)
+{
+  const auto moduleKeyword = std::string{"module"};
+  auto text = std::vector<unsigned char>(moduleKeyword.length());
+  text.insert(text.begin(), moduleKeyword.begin(), moduleKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::MODULE});
+}
+
+TEST(LexerTest, lexProcedureToken)
+{
+  const auto procedureKeyword = std::string{"procedure"};
+  auto text = std::vector<unsigned char>(procedureKeyword.length());
+  text.insert(text.begin(), procedureKeyword.begin(), procedureKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::PROCEDURE});
+}
+
+TEST(LexerTest, lexBeginToken)
+{
+  const auto beginKeyword = std::string{"begin"};
+  auto text = std::vector<unsigned char>(beginKeyword.length());
+  text.insert(text.begin(), beginKeyword.begin(), beginKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::BEGIN});
+}
+
+TEST(LexerTest, lexEndToken)
+{
+  const auto endKeyword = std::string{"end"};
+  auto text = std::vector<unsigned char>(endKeyword.length());
+  text.insert(text.begin(), endKeyword.begin(), endKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::END});
+}
+
+TEST(LexerTest, lexConstToken)
+{
+  const auto constKeyword = std::string{"const"};
+  auto text = std::vector<unsigned char>(constKeyword.length());
+  text.insert(text.begin(), constKeyword.begin(), constKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::CONST});
+}
+
+TEST(LexerTest, lexVarToken)
+{
+  const auto varKeyword = std::string{"var"};
+  auto text = std::vector<unsigned char>(varKeyword.length());
+  text.insert(text.begin(), varKeyword.begin(), varKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::VAR});
+}
+
+TEST(LexerTest, lexIntToken)
+{
+  const auto intKeyword = std::string{"int"};
+  auto text = std::vector<unsigned char>(intKeyword.length());
+  text.insert(text.begin(), intKeyword.begin(), intKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::INT});
+}
+
+TEST(LexerTest, lexIfToken)
+{
+  const auto ifKeyword = std::string{"if"};
+  auto text = std::vector<unsigned char>(ifKeyword.length());
+  text.insert(text.begin(), ifKeyword.begin(), ifKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::IF});
+}
+
+TEST(LexerTest, lexThenToken)
+{
+  const auto thenKeyword = std::string{"then"};
+  auto text = std::vector<unsigned char>(thenKeyword.length());
+  text.insert(text.begin(), thenKeyword.begin(), thenKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::THEN});
+}
+
+TEST(LexerTest, lexWhileToken)
+{
+  const auto whileKeyword = std::string{"while"};
+  auto text = std::vector<unsigned char>(whileKeyword.length());
+  text.insert(text.begin(), whileKeyword.begin(), whileKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::WHILE});
+}
+
+TEST(LexerTest, lexDoToken)
+{
+  const auto doKeyword = std::string{"do"};
+  auto text = std::vector<unsigned char>(doKeyword.length());
+  text.insert(text.begin(), doKeyword.begin(), doKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::DO});
+}
+
+TEST(LexerTest, lexInputToken)
+{
+  const auto inputKeyword = std::string{"input"};
+  auto text = std::vector<unsigned char>(inputKeyword.length());
+  text.insert(text.begin(), inputKeyword.begin(), inputKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::INPUT});
+}
+
+TEST(LexerTest, lexOutputToken)
+{
+  const auto outputKeyword = std::string{"output"};
+  auto text = std::vector<unsigned char>(outputKeyword.length());
+  text.insert(text.begin(), outputKeyword.begin(), outputKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::OUTPUT});
+}
+
+TEST(LexerTest, lexOddToken)
+{
+  const auto oddKeyword = std::string{"odd"};
+  auto text = std::vector<unsigned char>(oddKeyword.length());
+  text.insert(text.begin(), oddKeyword.begin(), oddKeyword.end());
+
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::ODD});
+}
+
+// ===END OF KEYWORD TESTS===
+
 // ===PUNCTUATION TESTS===
 
 TEST(LexerTest, lexColonToken)

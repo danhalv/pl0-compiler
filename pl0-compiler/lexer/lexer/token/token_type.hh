@@ -9,8 +9,24 @@ enum class TokenType
 {
   // literals
   ID,
-  INTEGER,
+  INT_LITERAL,
   // end of literals
+  // keywords
+  MODULE,
+  PROCEDURE,
+  BEGIN,
+  END,
+  CONST,
+  VAR,
+  INT,
+  IF,
+  THEN,
+  WHILE,
+  DO,
+  INPUT,
+  OUTPUT,
+  ODD,
+  // end of keywords
   // operators
   WALRUS,
   ASTERISK,
