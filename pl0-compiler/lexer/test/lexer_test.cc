@@ -322,6 +322,31 @@ TEST(LexerTest, lexGeToken)
 
 // ===END OF OPERATOR TESTS===
 
+// ===WHITESPACE TESTS===
+
+TEST(LexerTest, lexWhitespaceTokenSpace)
+{
+  const auto text = std::vector<unsigned char>{' '};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::WHITESPACE});
+}
+
+TEST(LexerTest, lexWhitespaceTokenTab)
+{
+  const auto text = std::vector<unsigned char>{'\t'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::WHITESPACE});
+}
+
+TEST(LexerTest, lexWhitespaceTokenNewLine)
+{
+  const auto text = std::vector<unsigned char>{'\n'};
+  ASSERT_EQ(*pl0c::lexer::run(text).front(),
+            pl0c::lexer::Token{pl0c::lexer::TokenType::WHITESPACE});
+}
+
+// ===END OF WHITESPACE TESTS===
+
 // ===OTHER TESTS===
 
 TEST(LexerTest, lexEmptyText)

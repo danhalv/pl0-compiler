@@ -7,6 +7,7 @@ namespace lexer
 
 enum class TokenType
 {
+  WHITESPACE,
   // literals
   ID,
   INT_LITERAL,

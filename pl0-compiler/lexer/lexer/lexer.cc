@@ -116,6 +116,12 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       }
       break;
     }
+    case ' ':
+    case '\n':
+    case '\t': {
+      tokens.push_back(std::make_shared<Token>(TokenType::WHITESPACE));
+      break;
+    }
     default: {
       // Identifier token (also handles keywords)
       // ID           ::= Letter AlphaNumeric*
