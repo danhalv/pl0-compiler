@@ -124,11 +124,11 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       // Digit        ::= 0|...|9
       if (std::isalpha(text.at(i)))
       {
-        auto identifier = std::string{text.at(i)};
+        auto identifier = std::string{static_cast<char>(text.at(i))};
         ++i;
         while (std::isalnum(text.at(i)))
         {
-          identifier += std::string{text.at(i)};
+          identifier += std::string{static_cast<char>(text.at(i))};
           ++i;
         }
 
@@ -140,11 +140,11 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       // Digit    ::= 0|...|9
       if (std::isdigit(static_cast<int>(text.at(i))))
       {
-        auto integerString = std::string{text.at(i)};
+        auto integerString = std::string{static_cast<char>(text.at(i))};
         ++i;
         while (std::isdigit(static_cast<int>(text.at(i))))
         {
-          integerString += std::string{text.at(i)};
+          integerString += std::string{static_cast<char>(text.at(i))};
           ++i;
         }
 
