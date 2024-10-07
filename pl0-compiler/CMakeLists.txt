@@ -11,3 +11,4 @@ set(CMAKE_CXX_FLAGS
 set(CMAKE_CXX_CLANG_TIDY "/usr/bin/clang-tidy-18")
 
 add_subdirectory(lexer)
+add_subdirectory(parser)
