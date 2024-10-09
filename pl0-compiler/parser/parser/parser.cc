@@ -6,6 +6,7 @@
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/program_node.hh"
+#include "parser/ast/var_decl_node.hh"
 
 #include <cassert>
 #include <deque>
@@ -107,6 +108,41 @@ auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return constDeclarations;
 }
 
+[[nodiscard]]
+auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<VarDeclNode>
+{
+  const auto declIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto declId =
+      std::dynamic_pointer_cast<lexer::IdToken>(declIdToken)->getId();
+
+  expect(lexer::TokenType::COLON, tokens);
+
+  const auto declTypeToken = type(tokens);
+
+  return std::make_shared<VarDeclNode>(declId, declTypeToken);
+}
+
+[[nodiscard]] auto varDecl(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::vector<std::shared_ptr<VarDeclNode>>
+{
+  auto varDeclarations = std::vector<std::shared_ptr<VarDeclNode>>{};
+
+  expect(lexer::TokenType::VAR, tokens);
+
+  varDeclarations.push_back(varDeclItem(tokens));
+
+  while (lexer::TokenType::COMMA == tokens.front()->getType())
+  {
+    next(tokens);
+    varDeclarations.push_back(varDeclItem(tokens));
+  }
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return varDeclarations;
+}
+
 [[nodiscard]] auto declList(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::vector<std::shared_ptr<DeclNode>>
 {
@@ -120,6 +156,13 @@ auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
       const auto constDeclarations = constDecl(tokens);
       declarations.insert(declarations.end(), constDeclarations.begin(),
                           constDeclarations.end());
+      parseDecl();
+      break;
+    }
+    case lexer::TokenType::VAR: {
+      const auto varDeclarations = varDecl(tokens);
+      declarations.insert(declarations.end(), varDeclarations.begin(),
+                          varDeclarations.end());
       parseDecl();
       break;
     }

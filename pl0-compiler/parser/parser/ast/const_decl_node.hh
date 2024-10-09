@@ -21,7 +21,7 @@ public:
   ConstDeclNode(const ConstDeclNode &) = delete;
   ConstDeclNode &operator=(const DeclNodeType &) = delete;
 
-  auto getDeclId() const -> std::string;
+  auto getDeclId() const -> std::string override;
   auto getDeclTypeToken() const -> std::shared_ptr<lexer::Token>;
   auto getDeclExprToken() const -> std::shared_ptr<lexer::Token>;
   auto getType() const -> DeclNodeType override;

@@ -4,6 +4,7 @@
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/program_node.hh"
+#include "parser/ast/var_decl_node.hh"
 #include "parser/parser.hh"
 
 #include <gtest/gtest.h>
@@ -147,6 +148,138 @@ TEST(ParserBlockConstDeclTest, constDeclarationInvalidExpr)
 {
   const auto textString = std::string{
       "module myModule; const i : int = const; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockDeclListTest, constAndVarDeclarations)
+{
+  const auto textString = std::string{
+      "module myModule; const i : int = 1; var x : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualDeclNodes = programNode.getBlockNode().getDeclarations();
+  const auto expectedDeclNodes =
+      std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{
+          std::make_shared<pl0c::parser::ConstDeclNode>(
+              "i",
+              std::make_shared<pl0c::lexer::Token>(pl0c::lexer::TokenType::INT),
+              std::make_shared<pl0c::lexer::IntegerToken>("1")),
+          std::make_shared<pl0c::parser::VarDeclNode>(
+              "x", std::make_shared<pl0c::lexer::Token>(
+                       pl0c::lexer::TokenType::INT))};
+
+  ASSERT_EQ(*std::dynamic_pointer_cast<pl0c::parser::ConstDeclNode>(
+                actualDeclNodes.at(0)),
+            *std::dynamic_pointer_cast<pl0c::parser::ConstDeclNode>(
+                expectedDeclNodes.at(0)));
+  ASSERT_EQ(*std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
+                actualDeclNodes.at(1)),
+            *std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
+                expectedDeclNodes.at(1)));
+}
+
+TEST(ParserBlockVarDeclTest, varDeclaration)
+{
+  const auto textString =
+      std::string{"module myModule; var i : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto &actualDeclNode =
+      *std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
+          programNode.getBlockNode().getDeclarations().front());
+  const auto expectedDeclNode = pl0c::parser::VarDeclNode{
+      "i", std::make_shared<pl0c::lexer::Token>(pl0c::lexer::TokenType::INT)};
+
+  ASSERT_EQ(actualDeclNode, expectedDeclNode);
+}
+
+TEST(ParserBlockVarDeclTest, multipleVarDeclarations)
+{
+  const auto textString =
+      std::string{"module myModule; var i : int, x : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualDeclNodes = programNode.getBlockNode().getDeclarations();
+  const auto expectedDeclNodes =
+      std::vector<std::shared_ptr<pl0c::parser::VarDeclNode>>{
+          std::make_shared<pl0c::parser::VarDeclNode>(
+              "i", std::make_shared<pl0c::lexer::Token>(
+                       pl0c::lexer::TokenType::INT)),
+          std::make_shared<pl0c::parser::VarDeclNode>(
+              "x", std::make_shared<pl0c::lexer::Token>(
+                       pl0c::lexer::TokenType::INT))};
+
+  ASSERT_EQ(*std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
+                actualDeclNodes.at(0)),
+            *expectedDeclNodes.at(0));
+  ASSERT_EQ(*std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
+                actualDeclNodes.at(1)),
+            *expectedDeclNodes.at(1));
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationMissingVarKeyword)
+{
+  const auto textString =
+      std::string{"module myModule; i : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationMissingIdentifier)
+{
+  const auto textString =
+      std::string{"module myModule; var : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationInvalidIdentifier)
+{
+  const auto textString =
+      std::string{"module myModule; var const : int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationMissingColon)
+{
+  const auto textString =
+      std::string{"module myModule; var i int; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationMissingType)
+{
+  const auto textString =
+      std::string{"module myModule; var i : ; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockVarDeclTest, varDeclarationInvalidType)
+{
+  const auto textString =
+      std::string{"module myModule; var i : x; begin end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
 
