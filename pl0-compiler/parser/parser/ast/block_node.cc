@@ -5,18 +5,25 @@ namespace pl0c
 namespace parser
 {
 
-BlockNode::BlockNode()
+BlockNode::BlockNode(const std::vector<std::shared_ptr<DeclNode>> &declarations)
+    : declarations_{declarations}
 {
 }
 
-bool operator==([[maybe_unused]] const BlockNode &lhs,
-                [[maybe_unused]] const BlockNode &rhs)
+auto BlockNode::getDeclarations() const
+    -> std::vector<std::shared_ptr<DeclNode>>
 {
-  return true;
+  return this->declarations_;
 }
 
-bool operator!=([[maybe_unused]] const BlockNode &lhs,
-                [[maybe_unused]] const BlockNode &rhs)
+bool operator==(const BlockNode &lhs, const BlockNode &rhs)
+{
+  const bool sameDeclarationList = (lhs.declarations_ == rhs.declarations_);
+
+  return sameDeclarationList;
+}
+
+bool operator!=(const BlockNode &lhs, const BlockNode &rhs)
 {
   return !(lhs == rhs);
 }
