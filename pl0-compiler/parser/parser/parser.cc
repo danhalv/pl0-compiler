@@ -5,6 +5,7 @@
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
+#include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/var_decl_node.hh"
 
@@ -108,6 +109,70 @@ auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return constDeclarations;
 }
 
+[[nodiscard]] auto formalDecl(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::pair<std::string, std::shared_ptr<lexer::Token>>
+{
+  const auto argumentIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto argumentId =
+      std::dynamic_pointer_cast<lexer::IdToken>(argumentIdToken)->getId();
+
+  expect(lexer::TokenType::COLON, tokens);
+
+  const auto argumentTypeToken = type(tokens);
+
+  return std::make_pair(argumentId, argumentTypeToken);
+}
+
+// forward declaration for procDecl function
+[[nodiscard]] auto block(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> BlockNode;
+
+[[nodiscard]] auto procDecl(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<ProcDeclNode>
+{
+  expect(lexer::TokenType::PROCEDURE, tokens);
+
+  const auto declIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto declId =
+      std::dynamic_pointer_cast<lexer::IdToken>(declIdToken)->getId();
+
+  expect(lexer::TokenType::LEFT_PAREN, tokens);
+
+  auto procArguments =
+      std::vector<std::pair<std::string, std::shared_ptr<lexer::Token>>>{};
+  if (lexer::TokenType::ID == tokens.front()->getType())
+  {
+    procArguments.push_back(formalDecl(tokens));
+
+    while (lexer::TokenType::COMMA == tokens.front()->getType())
+    {
+      next(tokens);
+      procArguments.push_back(formalDecl(tokens));
+    }
+  }
+
+  expect(lexer::TokenType::RIGHT_PAREN, tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  const auto procBlockNode = block(tokens);
+
+  const auto endProcIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto endProcId =
+      std::dynamic_pointer_cast<lexer::IdToken>(endProcIdToken)->getId();
+
+  const auto errMsg =
+      std::string{"parser error: procedure must have same identifier at "
+                  "beginning and end. Procedure identifier at start: " +
+                  declId + ", and at end: " + endProcId};
+  assert((declId == endProcId) && errMsg.c_str());
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<ProcDeclNode>(
+      declId, procArguments, std::make_shared<BlockNode>(procBlockNode));
+}
+
 [[nodiscard]]
 auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<VarDeclNode>
@@ -163,6 +228,12 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
       const auto varDeclarations = varDecl(tokens);
       declarations.insert(declarations.end(), varDeclarations.begin(),
                           varDeclarations.end());
+      parseDecl();
+      break;
+    }
+    case lexer::TokenType::PROCEDURE: {
+      const auto procDeclaration = procDecl(tokens);
+      declarations.push_back(procDeclaration);
       parseDecl();
       break;
     }

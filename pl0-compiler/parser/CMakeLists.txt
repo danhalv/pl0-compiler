@@ -1,6 +1,8 @@
 add_library(
-  parser parser/parser.cc parser/ast/program_node.cc parser/ast/block_node.cc
-         parser/ast/const_decl_node.cc parser/ast/var_decl_node.cc)
+  parser
+  parser/parser.cc parser/ast/program_node.cc parser/ast/block_node.cc
+  parser/ast/const_decl_node.cc parser/ast/var_decl_node.cc
+  parser/ast/proc_decl_node.cc)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(parser lexer)
 

@@ -3,6 +3,7 @@
 #include "lexer/token/integer_token.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
+#include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/var_decl_node.hh"
 #include "parser/parser.hh"
@@ -181,6 +182,139 @@ TEST(ParserBlockDeclListTest, constAndVarDeclarations)
                 actualDeclNodes.at(1)),
             *std::dynamic_pointer_cast<pl0c::parser::VarDeclNode>(
                 expectedDeclNodes.at(1)));
+}
+
+TEST(ParserBlockProcDeclTest, procDeclaration)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure (); begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualProcDeclNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ProcDeclNode>(
+          programNode.getBlockNode().getDeclarations().at(0));
+  const auto expectedProcDeclNode = pl0c::parser::ProcDeclNode{
+      "myProcedure",
+      {},
+      std::make_shared<pl0c::parser::BlockNode>(
+          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{})};
+
+  ASSERT_EQ(actualProcDeclNode, expectedProcDeclNode);
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationWithArguments)
+{
+  const auto textString = std::string{
+      "module myModule; procedure myProcedure (i : int, x : int); begin end "
+      "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualProcDeclNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ProcDeclNode>(
+          programNode.getBlockNode().getDeclarations().at(0));
+  const auto expectedProcDeclNode = pl0c::parser::ProcDeclNode{
+      "myProcedure",
+      {std::make_pair("i", std::make_shared<pl0c::lexer::Token>(
+                               pl0c::lexer::TokenType::INT)),
+       std::make_pair("x", std::make_shared<pl0c::lexer::Token>(
+                               pl0c::lexer::TokenType::INT))},
+      std::make_shared<pl0c::parser::BlockNode>(
+          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{})};
+
+  ASSERT_EQ(actualProcDeclNode, expectedProcDeclNode);
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingProcedureKeyword)
+{
+  const auto textString =
+      std::string{"module myModule; myProcedure (); begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingId)
+{
+  const auto textString =
+      std::string{"module myModule; procedure (); begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingEndId)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure(); begin end "
+                  "; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingLeftParen)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure); begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingRightParen)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure(; begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingSemiColonAfterArguments)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure() begin end "
+                  "myProcedure; begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingEndSemiColon)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure(); begin end "
+                  "myProcedure begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserBlockProcDeclTest, procDeclarationMissingBlock)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure(); myProcedure; "
+                  "begin end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
 }
 
 TEST(ParserBlockVarDeclTest, varDeclaration)

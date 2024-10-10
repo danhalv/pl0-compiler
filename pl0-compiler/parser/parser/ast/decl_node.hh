@@ -10,6 +10,7 @@ namespace parser
 enum class DeclNodeType
 {
   CONST_DECL,
+  PROC_DECL,
   VAR_DECL,
 };
 
