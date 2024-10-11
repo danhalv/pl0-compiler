@@ -8,6 +8,7 @@
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/stmt_node.hh"
@@ -251,15 +252,49 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return declarations;
 }
 
-[[nodiscard]] auto expr(
-    [[maybe_unused]] std::deque<std::shared_ptr<lexer::Token>> &tokens)
+[[nodiscard]] auto factor(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<ExprNode>
 {
-  const auto intLiteralToken = expect(lexer::TokenType::INT_LITERAL, tokens);
-  const auto integerValue =
-      std::dynamic_pointer_cast<lexer::IntegerToken>(intLiteralToken)->getInt();
+  switch (tokens.front()->getType())
+  {
+  case lexer::TokenType::INT_LITERAL: {
+    const auto integerToken = expect(lexer::TokenType::INT_LITERAL, tokens);
+    const auto integerValue =
+        std::dynamic_pointer_cast<lexer::IntegerToken>(integerToken)->getInt();
 
-  return std::make_shared<IntExprNode>(integerValue);
+    return std::make_shared<IntExprNode>(integerValue);
+  }
+  default: {
+    const auto errMsg = std::string{
+        "parser error: unknown start of expression with " +
+        lexer::tokenTypeNameMap.at(tokens.front()->getType()) + " token."};
+    assert(errMsg.c_str() && false);
+  }
+  }
+
+  return nullptr;
+}
+
+[[nodiscard]] auto term(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<ExprNode>
+{
+  const auto lhsExprNode = factor(tokens);
+
+  return lhsExprNode;
+}
+
+[[nodiscard]] auto expr(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<ExprNode>
+{
+  const auto lhsExprNode = term(tokens);
+
+  if (lexer::TokenType::PLUS == tokens.front()->getType())
+  {
+    next(tokens);
+    return std::make_shared<PlusExprNode>(lhsExprNode, term(tokens));
+  }
+
+  return lhsExprNode;
 }
 
 [[nodiscard]] auto assignStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)

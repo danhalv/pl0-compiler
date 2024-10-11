@@ -46,7 +46,7 @@ bool operator==(const AssignStmtNode &lhs, const AssignStmtNode &rhs)
       return (*lhsIntExpr == *rhsIntExpr);
     }
     default: {
-      break;
+      return false;
     }
     }
   }();

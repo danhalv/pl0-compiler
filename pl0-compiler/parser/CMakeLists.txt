@@ -7,7 +7,8 @@ add_library(
   parser/ast/var_decl_node.cc
   parser/ast/proc_decl_node.cc
   parser/ast/assign_stmt_node.cc
-  parser/ast/int_expr_node.cc)
+  parser/ast/int_expr_node.cc
+  parser/ast/plus_expr_node.cc)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(parser lexer)
 

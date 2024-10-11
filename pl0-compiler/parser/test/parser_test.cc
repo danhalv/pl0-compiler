@@ -5,6 +5,7 @@
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/var_decl_node.hh"
@@ -449,6 +450,36 @@ TEST(ParserBlockVarDeclTest, varDeclarationInvalidType)
   const auto tokens = pl0c::lexer::run(createText(textString));
 
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserExprTest, invalidExpr)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := const + 2; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserPlusExprTest, plusExprTwoIntegers)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := 1 + 2; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualPlusExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::PlusExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedPlusExprNode = pl0c::parser::PlusExprNode{
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualPlusExprNode, expectedPlusExprNode);
 }
 
 TEST(ParserProgramSymbolTest, programSymbol)

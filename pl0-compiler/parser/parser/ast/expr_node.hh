@@ -8,6 +8,7 @@ namespace parser
 enum class ExprNodeType
 {
   INT_EXPR,
+  PLUS_EXPR,
 };
 
 class ExprNode
