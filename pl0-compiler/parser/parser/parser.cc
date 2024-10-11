@@ -7,6 +7,7 @@
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/expr_node.hh"
+#include "parser/ast/int_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/stmt_node.hh"
@@ -252,12 +253,13 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
 
 [[nodiscard]] auto expr(
     [[maybe_unused]] std::deque<std::shared_ptr<lexer::Token>> &tokens)
-    -> ExprNode
+    -> std::shared_ptr<ExprNode>
 {
-  // TODO: update
-  expect(lexer::TokenType::INT_LITERAL, tokens);
+  const auto intLiteralToken = expect(lexer::TokenType::INT_LITERAL, tokens);
+  const auto integerValue =
+      std::dynamic_pointer_cast<lexer::IntegerToken>(intLiteralToken)->getInt();
 
-  return ExprNode{};
+  return std::make_shared<IntExprNode>(integerValue);
 }
 
 [[nodiscard]] auto assignStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
@@ -273,8 +275,7 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
 
   expect(lexer::TokenType::SEMI_COLON, tokens);
 
-  return std::make_shared<AssignStmtNode>(lvalueId,
-                                          std::make_shared<ExprNode>(exprNode));
+  return std::make_shared<AssignStmtNode>(lvalueId, exprNode);
 }
 
 [[nodiscard]] auto stmtList(std::deque<std::shared_ptr<lexer::Token>> &tokens)

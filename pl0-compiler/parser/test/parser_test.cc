@@ -4,6 +4,7 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
+#include "parser/ast/int_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/var_decl_node.hh"
@@ -34,7 +35,7 @@ TEST(ParserAssignStmtTest, assignStmt)
       *std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
           programNode.getBlockNode().getStatements().front());
   const auto expectedStmtNode = pl0c::parser::AssignStmtNode{
-      "i", std::make_shared<pl0c::parser::ExprNode>()};
+      "i", std::make_shared<pl0c::parser::IntExprNode>(1)};
 
   ASSERT_EQ(actualStmtNode, expectedStmtNode);
 }

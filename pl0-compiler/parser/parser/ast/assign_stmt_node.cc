@@ -1,5 +1,7 @@
 #include "parser/ast/assign_stmt_node.hh"
 
+#include "parser/ast/int_expr_node.hh"
+
 namespace pl0c
 {
 namespace parser
@@ -29,7 +31,25 @@ auto AssignStmtNode::getType() const -> StmtNodeType
 bool operator==(const AssignStmtNode &lhs, const AssignStmtNode &rhs)
 {
   const bool sameLValueId = (lhs.lvalueId_ == rhs.lvalueId_);
-  const bool sameExprNode = true; // TODO: update
+  const bool sameExprNode = [&lhs, &rhs]() {
+    if (lhs.exprNode_->getType() != rhs.exprNode_->getType())
+      return false;
+
+    switch (lhs.exprNode_->getType())
+    {
+    case ExprNodeType::INT_EXPR: {
+      const auto lhsIntExpr =
+          std::dynamic_pointer_cast<IntExprNode>(lhs.exprNode_);
+      const auto rhsIntExpr =
+          std::dynamic_pointer_cast<IntExprNode>(rhs.exprNode_);
+
+      return (*lhsIntExpr == *rhsIntExpr);
+    }
+    default: {
+      break;
+    }
+    }
+  }();
 
   return (sameLValueId && sameExprNode);
 }

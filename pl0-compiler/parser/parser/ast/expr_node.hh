@@ -7,14 +7,14 @@ namespace parser
 
 enum class ExprNodeType
 {
+  INT_EXPR,
 };
 
 class ExprNode
 {
 public:
-  ExprNode()
-  {
-  }
+  virtual ~ExprNode() = default;
+  virtual auto getType() const -> ExprNodeType = 0;
 };
 
 }; // namespace parser
