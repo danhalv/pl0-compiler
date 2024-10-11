@@ -1,6 +1,7 @@
 #include "lexer/lexer.hh"
 #include "lexer/token/id_token.hh"
 #include "lexer/token/integer_token.hh"
+#include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -19,6 +20,33 @@ auto createText(const std::string &textString) -> std::vector<unsigned char>
   text.insert(text.begin(), textString.begin(), textString.end());
 
   return text;
+}
+
+TEST(ParserAssignStmtTest, assignStmt)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := 1; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualStmtNode =
+      *std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+          programNode.getBlockNode().getStatements().front());
+  const auto expectedStmtNode = pl0c::parser::AssignStmtNode{
+      "i", std::make_shared<pl0c::parser::ExprNode>()};
+
+  ASSERT_EQ(actualStmtNode, expectedStmtNode);
+}
+
+TEST(ParserAssignStmtTest, assignStmtMissingWalrusOperator)
+{
+  const auto textString =
+      std::string{"module myModule; begin i 1; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+
+  ASSERT_DEATH(pl0c::parser::run(tokens), "");
 }
 
 TEST(ParserBlockConstDeclTest, constDeclarationIntLiteral)
@@ -200,7 +228,8 @@ TEST(ParserBlockProcDeclTest, procDeclaration)
       "myProcedure",
       {},
       std::make_shared<pl0c::parser::BlockNode>(
-          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{})};
+          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{},
+          std::vector<std::shared_ptr<pl0c::parser::StmtNode>>{})};
 
   ASSERT_EQ(actualProcDeclNode, expectedProcDeclNode);
 }
@@ -224,7 +253,8 @@ TEST(ParserBlockProcDeclTest, procDeclarationWithArguments)
        std::make_pair("x", std::make_shared<pl0c::lexer::Token>(
                                pl0c::lexer::TokenType::INT))},
       std::make_shared<pl0c::parser::BlockNode>(
-          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{})};
+          std::vector<std::shared_ptr<pl0c::parser::DeclNode>>{},
+          std::vector<std::shared_ptr<pl0c::parser::StmtNode>>{})};
 
   ASSERT_EQ(actualProcDeclNode, expectedProcDeclNode);
 }
@@ -427,8 +457,8 @@ TEST(ParserProgramSymbolTest, programSymbol)
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
 
-  ASSERT_EQ(programNode,
-            pl0c::parser::ProgramNode("myModule", pl0c::parser::BlockNode{{}}));
+  ASSERT_EQ(programNode, pl0c::parser::ProgramNode(
+                             "myModule", pl0c::parser::BlockNode{{}, {}}));
 }
 
 TEST(ParserProgramSymbolTest, unequalIdentifiers)

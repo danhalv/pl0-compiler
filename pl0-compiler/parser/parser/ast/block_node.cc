@@ -1,5 +1,6 @@
 #include "parser/ast/block_node.hh"
 
+#include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/var_decl_node.hh"
@@ -9,8 +10,9 @@ namespace pl0c
 namespace parser
 {
 
-BlockNode::BlockNode(const std::vector<std::shared_ptr<DeclNode>> &declarations)
-    : declarations_{declarations}
+BlockNode::BlockNode(const std::vector<std::shared_ptr<DeclNode>> &declarations,
+                     const std::vector<std::shared_ptr<StmtNode>> &statements)
+    : declarations_{declarations}, statements_{statements}
 {
 }
 
@@ -20,10 +22,18 @@ auto BlockNode::getDeclarations() const
   return this->declarations_;
 }
 
+auto BlockNode::getStatements() const -> std::vector<std::shared_ptr<StmtNode>>
+{
+  return this->statements_;
+}
+
 bool operator==(const BlockNode &lhs, const BlockNode &rhs)
 {
   const bool sameDeclarationList = [&lhs, &rhs]() {
     if (lhs.declarations_.size() != rhs.declarations_.size())
+      return false;
+
+    if (lhs.statements_.size() != rhs.statements_.size())
       return false;
 
     for (std::size_t i = 0; i < lhs.declarations_.size(); ++i)
@@ -63,6 +73,30 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
             std::dynamic_pointer_cast<VarDeclNode>(rhs.declarations_.at(i));
 
         if (*lhsVarDecl != *rhsVarDecl)
+          return false;
+
+        break;
+      }
+      default: {
+        break;
+      }
+      }
+    }
+
+    for (std::size_t i = 0; i < lhs.statements_.size(); ++i)
+    {
+      if (lhs.statements_.at(i)->getType() != rhs.statements_.at(i)->getType())
+        return false;
+
+      switch (lhs.statements_.at(i)->getType())
+      {
+      case StmtNodeType::ASSIGN_STMT: {
+        const auto lhsAssignStmt =
+            std::dynamic_pointer_cast<AssignStmtNode>(lhs.statements_.at(i));
+        const auto rhsAssignStmt =
+            std::dynamic_pointer_cast<AssignStmtNode>(rhs.statements_.at(i));
+
+        if (*lhsAssignStmt != *rhsAssignStmt)
           return false;
 
         break;

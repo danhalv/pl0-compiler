@@ -2,11 +2,14 @@
 
 #include "lexer/token/id_token.hh"
 #include "lexer/token/token_type.hh"
+#include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
+#include "parser/ast/expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
+#include "parser/ast/stmt_node.hh"
 #include "parser/ast/var_decl_node.hh"
 
 #include <cassert>
@@ -247,6 +250,57 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return declarations;
 }
 
+[[nodiscard]] auto expr(
+    [[maybe_unused]] std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> ExprNode
+{
+  // TODO: update
+  expect(lexer::TokenType::INT_LITERAL, tokens);
+
+  return ExprNode{};
+}
+
+[[nodiscard]] auto assignStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<AssignStmtNode>
+{
+  const auto lvalueIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto lvalueId =
+      std::dynamic_pointer_cast<lexer::IdToken>(lvalueIdToken)->getId();
+
+  expect(lexer::TokenType::WALRUS, tokens);
+
+  const auto exprNode = expr(tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<AssignStmtNode>(lvalueId,
+                                          std::make_shared<ExprNode>(exprNode));
+}
+
+[[nodiscard]] auto stmtList(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::vector<std::shared_ptr<StmtNode>>
+{
+  auto statements = std::vector<std::shared_ptr<StmtNode>>{};
+
+  std::function<void()> parseStmt; // declaration enables recursive call
+  parseStmt = [&tokens, &statements, &parseStmt]() -> void {
+    switch (tokens.front()->getType())
+    {
+    case lexer::TokenType::ID: {
+      statements.push_back(assignStmt(tokens));
+      parseStmt();
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  };
+
+  parseStmt();
+  return statements;
+}
+
 [[nodiscard]] auto block(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> BlockNode
 {
@@ -254,9 +308,11 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
 
   expect(lexer::TokenType::BEGIN, tokens);
 
+  const auto statements = stmtList(tokens);
+
   expect(lexer::TokenType::END, tokens);
 
-  return BlockNode{declarations};
+  return BlockNode{declarations, statements};
 }
 
 [[nodiscard]] auto program(std::deque<std::shared_ptr<lexer::Token>> &tokens)
