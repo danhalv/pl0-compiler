@@ -1,5 +1,6 @@
 #include "parser/ast/plus_expr_node.hh"
 
+#include "parser/ast/id_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 
 namespace pl0c
@@ -37,6 +38,12 @@ bool operator==(const PlusExprNode &lhs, const PlusExprNode &rhs)
 
     switch (lhsExpr->getType())
     {
+    case ExprNodeType::ID_EXPR: {
+      const auto lhsIdExpr = std::dynamic_pointer_cast<IdExprNode>(lhsExpr);
+      const auto rhsIdExpr = std::dynamic_pointer_cast<IdExprNode>(rhsExpr);
+
+      return (*lhsIdExpr == *rhsIdExpr);
+    }
     case ExprNodeType::INT_EXPR: {
       const auto lhsIntExpr = std::dynamic_pointer_cast<IntExprNode>(lhsExpr);
       const auto rhsIntExpr = std::dynamic_pointer_cast<IntExprNode>(rhsExpr);
