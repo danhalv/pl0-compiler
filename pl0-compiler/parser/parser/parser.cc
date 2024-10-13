@@ -8,6 +8,7 @@
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
+#include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -264,6 +265,10 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
         std::dynamic_pointer_cast<lexer::IdToken>(factorIdToken)->getId();
 
     return std::make_shared<IdExprNode>(factorId);
+  }
+  case lexer::TokenType::INPUT: {
+    next(tokens);
+    return std::make_shared<InputExprNode>();
   }
   case lexer::TokenType::INT_LITERAL: {
     const auto integerToken = expect(lexer::TokenType::INT_LITERAL, tokens);

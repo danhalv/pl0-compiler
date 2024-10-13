@@ -5,6 +5,7 @@
 #include "parser/ast/block_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/id_expr_node.hh"
+#include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -498,6 +499,26 @@ TEST(ParserPlusExprTest, plusExprIntegerPlusId)
               ->getExprNode());
   const auto expectedPlusExprNode = pl0c::parser::PlusExprNode{
       std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IdExprNode>("x")};
+
+  ASSERT_EQ(actualPlusExprNode, expectedPlusExprNode);
+}
+
+TEST(ParserPlusExprTest, plusExprInputPlusId)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := input + x; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualPlusExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::PlusExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedPlusExprNode = pl0c::parser::PlusExprNode{
+      std::make_shared<pl0c::parser::InputExprNode>(),
       std::make_shared<pl0c::parser::IdExprNode>("x")};
 
   ASSERT_EQ(actualPlusExprNode, expectedPlusExprNode);
