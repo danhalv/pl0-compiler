@@ -7,6 +7,7 @@
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -463,6 +464,28 @@ TEST(ParserExprTest, invalidExpr)
   const auto tokens = pl0c::lexer::run(createText(textString));
 
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserMinusExprTest, identifierMinusNestedMinusExpression)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := x - ( 1 - 2 ); end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualMinusExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::MinusExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedMinusExprNode = pl0c::parser::MinusExprNode{
+      std::make_shared<pl0c::parser::IdExprNode>("x"),
+      std::make_shared<pl0c::parser::MinusExprNode>(
+          std::make_shared<pl0c::parser::IntExprNode>(1),
+          std::make_shared<pl0c::parser::IntExprNode>(2))};
+
+  ASSERT_EQ(actualMinusExprNode, expectedMinusExprNode);
 }
 
 TEST(ParserPlusExprTest, plusExprTwoIntegers)
