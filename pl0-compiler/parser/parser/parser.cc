@@ -255,6 +255,10 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return declarations;
 }
 
+// forward declaration for factor function
+[[nodiscard]] auto expr(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<ExprNode>;
+
 [[nodiscard]] auto factor(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<ExprNode>
 {
@@ -277,6 +281,14 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
         std::dynamic_pointer_cast<lexer::IntegerToken>(integerToken)->getInt();
 
     return std::make_shared<IntExprNode>(integerValue);
+  }
+  case lexer::TokenType::LEFT_PAREN: {
+    next(tokens);
+    const auto exprNode = expr(tokens);
+
+    expect(lexer::TokenType::RIGHT_PAREN, tokens);
+
+    return exprNode;
   }
   case lexer::TokenType::MINUS: {
     next(tokens);

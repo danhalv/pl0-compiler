@@ -546,6 +546,28 @@ TEST(ParserPlusExprTest, plusExprNegativeIdPlusInteger)
   ASSERT_EQ(actualPlusExprNode, expectedPlusExprNode);
 }
 
+TEST(ParserPlusExprTest, nestedPlusExprPlusInteger)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := 1 + ( 2 + 3 ); end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualPlusExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::PlusExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedPlusExprNode = pl0c::parser::PlusExprNode{
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::PlusExprNode>(
+          std::make_shared<pl0c::parser::IntExprNode>(2),
+          std::make_shared<pl0c::parser::IntExprNode>(3))};
+
+  ASSERT_EQ(actualPlusExprNode, expectedPlusExprNode);
+}
+
 TEST(ParserProgramSymbolTest, programSymbol)
 {
   const auto textString = std::string{"module myModule; begin end myModule."};
