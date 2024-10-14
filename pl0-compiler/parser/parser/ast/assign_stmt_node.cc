@@ -44,73 +44,25 @@ bool operator==(const AssignStmtNode &lhs, const AssignStmtNode &rhs)
 
     switch (lhs.exprNode_->getType())
     {
-    case ExprNodeType::DIVISION_EXPR: {
-      const auto lhsDivisionExpr =
-          std::dynamic_pointer_cast<DivisionExprNode>(lhs.exprNode_);
-      const auto rhsDivisionExpr =
-          std::dynamic_pointer_cast<DivisionExprNode>(rhs.exprNode_);
-
-      return (*lhsDivisionExpr == *rhsDivisionExpr);
-    }
-    case ExprNodeType::ID_EXPR: {
-      const auto lhsIdExpr =
-          std::dynamic_pointer_cast<IdExprNode>(lhs.exprNode_);
-      const auto rhsIdExpr =
-          std::dynamic_pointer_cast<IdExprNode>(rhs.exprNode_);
-
-      return (*lhsIdExpr == *rhsIdExpr);
-    }
-    case ExprNodeType::INT_EXPR: {
-      const auto lhsIntExpr =
-          std::dynamic_pointer_cast<IntExprNode>(lhs.exprNode_);
-      const auto rhsIntExpr =
-          std::dynamic_pointer_cast<IntExprNode>(rhs.exprNode_);
-
-      return (*lhsIntExpr == *rhsIntExpr);
-    }
-    case ExprNodeType::INPUT_EXPR: {
-      const auto lhsInputExpr =
-          std::dynamic_pointer_cast<InputExprNode>(lhs.exprNode_);
-      const auto rhsInputExpr =
-          std::dynamic_pointer_cast<InputExprNode>(rhs.exprNode_);
-
-      return (*lhsInputExpr == *rhsInputExpr);
-    }
-    case ExprNodeType::MINUS_EXPR: {
-      const auto lhsMinusExpr =
-          std::dynamic_pointer_cast<MinusExprNode>(lhs.exprNode_);
-      const auto rhsMinusExpr =
-          std::dynamic_pointer_cast<MinusExprNode>(rhs.exprNode_);
-
-      return (*lhsMinusExpr == *rhsMinusExpr);
-    }
-    case ExprNodeType::MULTIPLICATION_EXPR: {
-      const auto lhsMultiplicationExpr =
-          std::dynamic_pointer_cast<MultiplicationExprNode>(lhs.exprNode_);
-      const auto rhsMultiplicationExpr =
-          std::dynamic_pointer_cast<MultiplicationExprNode>(rhs.exprNode_);
-
-      return (*lhsMultiplicationExpr == *rhsMultiplicationExpr);
-    }
-    case ExprNodeType::NEGATIVE_EXPR: {
-      const auto lhsNegativeExpr =
-          std::dynamic_pointer_cast<NegativeExprNode>(lhs.exprNode_);
-      const auto rhsNegativeExpr =
-          std::dynamic_pointer_cast<NegativeExprNode>(rhs.exprNode_);
-
-      return (*lhsNegativeExpr == *rhsNegativeExpr);
-    }
-    case ExprNodeType::PLUS_EXPR: {
-      const auto lhsPlusExpr =
-          std::dynamic_pointer_cast<PlusExprNode>(lhs.exprNode_);
-      const auto rhsPlusExpr =
-          std::dynamic_pointer_cast<PlusExprNode>(rhs.exprNode_);
-
-      return (*lhsPlusExpr == *rhsPlusExpr);
-    }
-    default: {
+    case ExprNodeType::DIVISION_EXPR:
+      return isSameExprNode<DivisionExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::ID_EXPR:
+      return isSameExprNode<IdExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::INT_EXPR:
+      return isSameExprNode<IntExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::INPUT_EXPR:
+      return isSameExprNode<InputExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::MINUS_EXPR:
+      return isSameExprNode<MinusExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::MULTIPLICATION_EXPR:
+      return isSameExprNode<MultiplicationExprNode>(lhs.exprNode_,
+                                                    rhs.exprNode_);
+    case ExprNodeType::NEGATIVE_EXPR:
+      return isSameExprNode<NegativeExprNode>(lhs.exprNode_, rhs.exprNode_);
+    case ExprNodeType::PLUS_EXPR:
+      return isSameExprNode<PlusExprNode>(lhs.exprNode_, rhs.exprNode_);
+    default:
       return false;
-    }
     }
   }();
 
