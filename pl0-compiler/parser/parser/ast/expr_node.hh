@@ -7,6 +7,7 @@ namespace parser
 
 enum class ExprNodeType
 {
+  DIVISION_EXPR,
   ID_EXPR,
   INPUT_EXPR,
   INT_EXPR,

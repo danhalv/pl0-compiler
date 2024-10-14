@@ -1,6 +1,7 @@
 #include "parser/ast/block_node.hh"
 
 #include "parser/ast/assign_stmt_node.hh"
+#include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/var_decl_node.hh"
@@ -31,9 +32,6 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
 {
   const bool sameDeclarationList = [&lhs, &rhs]() {
     if (lhs.declarations_.size() != rhs.declarations_.size())
-      return false;
-
-    if (lhs.statements_.size() != rhs.statements_.size())
       return false;
 
     for (std::size_t i = 0; i < lhs.declarations_.size(); ++i)
@@ -78,10 +76,17 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
         break;
       }
       default: {
-        break;
+        return false;
       }
       }
     }
+
+    return true;
+  }();
+
+  const bool sameStatementList = [&lhs, &rhs]() {
+    if (lhs.statements_.size() != rhs.statements_.size())
+      return false;
 
     for (std::size_t i = 0; i < lhs.statements_.size(); ++i)
     {
@@ -96,13 +101,18 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
         const auto rhsAssignStmt =
             std::dynamic_pointer_cast<AssignStmtNode>(rhs.statements_.at(i));
 
-        if (*lhsAssignStmt != *rhsAssignStmt)
-          return false;
+        return (*lhsAssignStmt == *rhsAssignStmt);
+      }
+      case StmtNodeType::CALL_STMT: {
+        const auto lhsCallStmt =
+            std::dynamic_pointer_cast<CallStmtNode>(lhs.statements_.at(i));
+        const auto rhsCallStmt =
+            std::dynamic_pointer_cast<CallStmtNode>(rhs.statements_.at(i));
 
-        break;
+        return (*lhsCallStmt == *rhsCallStmt);
       }
       default: {
-        break;
+        return false;
       }
       }
     }
@@ -110,7 +120,7 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
     return true;
   }();
 
-  return sameDeclarationList;
+  return (sameDeclarationList && sameStatementList);
 }
 
 bool operator!=(const BlockNode &lhs, const BlockNode &rhs)

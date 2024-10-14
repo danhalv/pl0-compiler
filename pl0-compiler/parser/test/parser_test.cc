@@ -3,7 +3,9 @@
 #include "lexer/token/integer_token.hh"
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
+#include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
+#include "parser/ast/division_expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
@@ -455,6 +457,50 @@ TEST(ParserBlockVarDeclTest, varDeclarationInvalidType)
   const auto tokens = pl0c::lexer::run(createText(textString));
 
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserCallStmtTest, callStmtMultipleArguments)
+{
+  const auto textString =
+      std::string{"module myModule; begin myProc(x, 1, 2 + 2); end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualCallStmtNode =
+      *std::dynamic_pointer_cast<pl0c::parser::CallStmtNode>(
+          programNode.getBlockNode().getStatements().front());
+  const auto expectedCallStmtNode = pl0c::parser::CallStmtNode{
+      "myProc", std::vector<std::shared_ptr<pl0c::parser::ExprNode>>{
+                    std::make_shared<pl0c::parser::IdExprNode>("x"),
+                    std::make_shared<pl0c::parser::IntExprNode>(1),
+                    std::make_shared<pl0c::parser::PlusExprNode>(
+                        std::make_shared<pl0c::parser::IntExprNode>(2),
+                        std::make_shared<pl0c::parser::IntExprNode>(2))}};
+
+  ASSERT_EQ(actualCallStmtNode, expectedCallStmtNode);
+}
+
+TEST(ParserDivisionExprTest, nestedDivisionExprDividedByIdentifier)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := (2 / 2) / x; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualDivisionExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::DivisionExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedDivisionExprNode = pl0c::parser::DivisionExprNode{
+      std::make_shared<pl0c::parser::DivisionExprNode>(
+          std::make_shared<pl0c::parser::IntExprNode>(2),
+          std::make_shared<pl0c::parser::IntExprNode>(2)),
+      std::make_shared<pl0c::parser::IdExprNode>("x")};
+
+  ASSERT_EQ(actualDivisionExprNode, expectedDivisionExprNode);
 }
 
 TEST(ParserExprTest, invalidExpr)

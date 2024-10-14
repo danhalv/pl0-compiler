@@ -7,6 +7,8 @@ add_library(
   parser/ast/var_decl_node.cc
   parser/ast/proc_decl_node.cc
   parser/ast/assign_stmt_node.cc
+  parser/ast/call_stmt_node.cc
+  parser/ast/division_expr_node.cc
   parser/ast/id_expr_node.cc
   parser/ast/input_expr_node.cc
   parser/ast/int_expr_node.cc

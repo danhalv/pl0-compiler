@@ -1,5 +1,6 @@
 #include "parser/ast/multiplication_expr_node.hh"
 
+#include "parser/ast/division_expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
@@ -44,6 +45,14 @@ bool operator==(const MultiplicationExprNode &lhs,
 
     switch (lhsExpr->getType())
     {
+    case ExprNodeType::DIVISION_EXPR: {
+      const auto lhsDivisionExpr =
+          std::dynamic_pointer_cast<DivisionExprNode>(lhsExpr);
+      const auto rhsDivisionExpr =
+          std::dynamic_pointer_cast<DivisionExprNode>(rhsExpr);
+
+      return (*lhsDivisionExpr == *rhsDivisionExpr);
+    }
     case ExprNodeType::ID_EXPR: {
       const auto lhsIdExpr = std::dynamic_pointer_cast<IdExprNode>(lhsExpr);
       const auto rhsIdExpr = std::dynamic_pointer_cast<IdExprNode>(rhsExpr);

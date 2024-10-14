@@ -4,8 +4,10 @@
 #include "lexer/token/token_type.hh"
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
+#include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
+#include "parser/ast/division_expr_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
@@ -319,6 +321,10 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     return std::make_shared<MultiplicationExprNode>(lhsExprNode,
                                                     factor(tokens));
   }
+  case lexer::TokenType::SLASH: {
+    next(tokens);
+    return std::make_shared<DivisionExprNode>(lhsExprNode, factor(tokens));
+  }
   default: {
     break;
   }
@@ -366,6 +372,34 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return std::make_shared<AssignStmtNode>(lvalueId, exprNode);
 }
 
+[[nodiscard]] auto callStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<CallStmtNode>
+{
+  const auto procIdToken = expect(lexer::TokenType::ID, tokens);
+  const auto procId =
+      std::dynamic_pointer_cast<lexer::IdToken>(procIdToken)->getId();
+
+  expect(lexer::TokenType::LEFT_PAREN, tokens);
+
+  auto arguments = std::vector<std::shared_ptr<ExprNode>>{};
+  if (lexer::TokenType::RIGHT_PAREN != tokens.front()->getType())
+  {
+    arguments.push_back(expr(tokens));
+
+    while (lexer::TokenType::COMMA == tokens.front()->getType())
+    {
+      next(tokens);
+      arguments.push_back(expr(tokens));
+    }
+  }
+
+  expect(lexer::TokenType::RIGHT_PAREN, tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<CallStmtNode>(procId, arguments);
+}
+
 [[nodiscard]] auto stmtList(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::vector<std::shared_ptr<StmtNode>>
 {
@@ -376,7 +410,16 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     switch (tokens.front()->getType())
     {
     case lexer::TokenType::ID: {
-      statements.push_back(assignStmt(tokens));
+      if (tokens.size() > 1 &&
+          lexer::TokenType::LEFT_PAREN == tokens.at(1)->getType())
+      {
+        statements.push_back(callStmt(tokens));
+      }
+      else
+      {
+        statements.push_back(assignStmt(tokens));
+      }
+
       parseStmt();
       break;
     }

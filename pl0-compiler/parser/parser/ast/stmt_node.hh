@@ -8,6 +8,7 @@ namespace parser
 enum class StmtNodeType
 {
   ASSIGN_STMT,
+  CALL_STMT,
 };
 
 class StmtNode
