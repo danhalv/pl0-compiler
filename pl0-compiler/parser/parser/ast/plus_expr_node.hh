@@ -13,8 +13,8 @@ class PlusExprNode : public ExprNode
 {
 public:
   PlusExprNode() = delete;
-  PlusExprNode(const std::shared_ptr<ExprNode> &,
-               const std::shared_ptr<ExprNode> &);
+  PlusExprNode(const std::shared_ptr<ExprNode>,
+               const std::shared_ptr<ExprNode>);
 
   auto getLhsExpr() const -> std::shared_ptr<ExprNode>;
   auto getRhsExpr() const -> std::shared_ptr<ExprNode>;

@@ -3,14 +3,15 @@
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/negative_expr_node.hh"
 
 namespace pl0c
 {
 namespace parser
 {
 
-PlusExprNode::PlusExprNode(const std::shared_ptr<ExprNode> &lhsExpr,
-                           const std::shared_ptr<ExprNode> &rhsExpr)
+PlusExprNode::PlusExprNode(const std::shared_ptr<ExprNode> lhsExpr,
+                           const std::shared_ptr<ExprNode> rhsExpr)
     : lhsExpr_{lhsExpr}, rhsExpr_{rhsExpr}
 {
 }
@@ -58,6 +59,14 @@ bool operator==(const PlusExprNode &lhs, const PlusExprNode &rhs)
           std::dynamic_pointer_cast<InputExprNode>(rhsExpr);
 
       return (*lhsInputExpr == *rhsInputExpr);
+    }
+    case ExprNodeType::NEGATIVE_EXPR: {
+      const auto lhsNegativeExpr =
+          std::dynamic_pointer_cast<NegativeExprNode>(lhsExpr);
+      const auto rhsNegativeExpr =
+          std::dynamic_pointer_cast<NegativeExprNode>(rhsExpr);
+
+      return (*lhsNegativeExpr == *rhsNegativeExpr);
     }
     case ExprNodeType::PLUS_EXPR: {
       const auto lhsPlusExpr = std::dynamic_pointer_cast<PlusExprNode>(lhsExpr);

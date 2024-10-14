@@ -10,6 +10,7 @@ enum class ExprNodeType
   ID_EXPR,
   INPUT_EXPR,
   INT_EXPR,
+  NEGATIVE_EXPR,
   PLUS_EXPR,
 };
 

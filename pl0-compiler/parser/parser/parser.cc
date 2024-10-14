@@ -10,6 +10,7 @@
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
@@ -276,6 +277,10 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
         std::dynamic_pointer_cast<lexer::IntegerToken>(integerToken)->getInt();
 
     return std::make_shared<IntExprNode>(integerValue);
+  }
+  case lexer::TokenType::MINUS: {
+    next(tokens);
+    return std::make_shared<NegativeExprNode>(factor(tokens));
   }
   default: {
     const auto errMsg = std::string{
