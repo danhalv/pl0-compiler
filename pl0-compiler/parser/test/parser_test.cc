@@ -8,6 +8,7 @@
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -486,6 +487,29 @@ TEST(ParserMinusExprTest, identifierMinusNestedMinusExpression)
           std::make_shared<pl0c::parser::IntExprNode>(2))};
 
   ASSERT_EQ(actualMinusExprNode, expectedMinusExprNode);
+}
+
+TEST(ParserMultiplicationExprTest, nestedMultiplicationExpressionTimesId)
+{
+  const auto textString =
+      std::string{"module myModule; begin i := (1 * 2) * x; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualMultiplicationExprNode =
+      *std::dynamic_pointer_cast<pl0c::parser::MultiplicationExprNode>(
+          std::dynamic_pointer_cast<pl0c::parser::AssignStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getExprNode());
+  const auto expectedMultiplicationExprNode =
+      pl0c::parser::MultiplicationExprNode{
+          std::make_shared<pl0c::parser::MultiplicationExprNode>(
+              std::make_shared<pl0c::parser::IntExprNode>(1),
+              std::make_shared<pl0c::parser::IntExprNode>(2)),
+          std::make_shared<pl0c::parser::IdExprNode>("x")};
+
+  ASSERT_EQ(actualMultiplicationExprNode, expectedMultiplicationExprNode);
 }
 
 TEST(ParserPlusExprTest, plusExprTwoIntegers)

@@ -11,6 +11,7 @@ add_library(
   parser/ast/input_expr_node.cc
   parser/ast/int_expr_node.cc
   parser/ast/minus_expr_node.cc
+  parser/ast/multiplication_expr_node.cc
   parser/ast/negative_expr_node.cc
   parser/ast/plus_expr_node.cc)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

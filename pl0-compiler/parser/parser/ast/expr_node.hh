@@ -11,6 +11,7 @@ enum class ExprNodeType
   INPUT_EXPR,
   INT_EXPR,
   MINUS_EXPR,
+  MULTIPLICATION_EXPR,
   NEGATIVE_EXPR,
   PLUS_EXPR,
 };

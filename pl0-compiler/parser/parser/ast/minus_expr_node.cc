@@ -3,6 +3,7 @@
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 
@@ -68,6 +69,14 @@ bool operator==(const MinusExprNode &lhs, const MinusExprNode &rhs)
           std::dynamic_pointer_cast<MinusExprNode>(rhsExpr);
 
       return (*lhsMinusExpr == *rhsMinusExpr);
+    }
+    case ExprNodeType::MULTIPLICATION_EXPR: {
+      const auto lhsMultiplicationExpr =
+          std::dynamic_pointer_cast<MultiplicationExprNode>(lhsExpr);
+      const auto rhsMultiplicationExpr =
+          std::dynamic_pointer_cast<MultiplicationExprNode>(rhsExpr);
+
+      return (*lhsMultiplicationExpr == *rhsMultiplicationExpr);
     }
     case ExprNodeType::NEGATIVE_EXPR: {
       const auto lhsNegativeExpr =

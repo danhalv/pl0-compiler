@@ -1,39 +1,41 @@
-#include "parser/ast/plus_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
 
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
-#include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/plus_expr_node.hh"
 
 namespace pl0c
 {
 namespace parser
 {
 
-PlusExprNode::PlusExprNode(const std::shared_ptr<ExprNode> lhsExpr,
-                           const std::shared_ptr<ExprNode> rhsExpr)
+MultiplicationExprNode::MultiplicationExprNode(
+    const std::shared_ptr<ExprNode> lhsExpr,
+    const std::shared_ptr<ExprNode> rhsExpr)
     : lhsExpr_{lhsExpr}, rhsExpr_{rhsExpr}
 {
 }
 
-auto PlusExprNode::getLhsExpr() const -> std::shared_ptr<ExprNode>
+auto MultiplicationExprNode::getLhsExpr() const -> std::shared_ptr<ExprNode>
 {
   return this->lhsExpr_;
 }
 
-auto PlusExprNode::getRhsExpr() const -> std::shared_ptr<ExprNode>
+auto MultiplicationExprNode::getRhsExpr() const -> std::shared_ptr<ExprNode>
 {
   return this->rhsExpr_;
 }
 
-auto PlusExprNode::getType() const -> ExprNodeType
+auto MultiplicationExprNode::getType() const -> ExprNodeType
 {
-  return ExprNodeType::PLUS_EXPR;
+  return ExprNodeType::MULTIPLICATION_EXPR;
 }
 
-bool operator==(const PlusExprNode &lhs, const PlusExprNode &rhs)
+bool operator==(const MultiplicationExprNode &lhs,
+                const MultiplicationExprNode &rhs)
 {
   auto sameNode = [](const std::shared_ptr<ExprNode> lhsExpr,
                      const std::shared_ptr<ExprNode> rhsExpr) {
@@ -87,8 +89,10 @@ bool operator==(const PlusExprNode &lhs, const PlusExprNode &rhs)
       return (*lhsNegativeExpr == *rhsNegativeExpr);
     }
     case ExprNodeType::PLUS_EXPR: {
-      const auto lhsPlusExpr = std::dynamic_pointer_cast<PlusExprNode>(lhsExpr);
-      const auto rhsPlusExpr = std::dynamic_pointer_cast<PlusExprNode>(rhsExpr);
+      const auto lhsPlusExpr =
+          std::dynamic_pointer_cast<MultiplicationExprNode>(lhsExpr);
+      const auto rhsPlusExpr =
+          std::dynamic_pointer_cast<MultiplicationExprNode>(rhsExpr);
 
       return (*lhsPlusExpr == *rhsPlusExpr);
     }
@@ -104,7 +108,8 @@ bool operator==(const PlusExprNode &lhs, const PlusExprNode &rhs)
   return (sameLhsExprs && sameRhsExprs);
 }
 
-bool operator!=(const PlusExprNode &lhs, const PlusExprNode &rhs)
+bool operator!=(const MultiplicationExprNode &lhs,
+                const MultiplicationExprNode &rhs)
 {
   return !(lhs == rhs);
 }

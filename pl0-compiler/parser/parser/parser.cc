@@ -11,6 +11,7 @@
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -310,6 +311,18 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<ExprNode>
 {
   const auto lhsExprNode = factor(tokens);
+
+  switch (tokens.front()->getType())
+  {
+  case lexer::TokenType::ASTERISK: {
+    next(tokens);
+    return std::make_shared<MultiplicationExprNode>(lhsExprNode,
+                                                    factor(tokens));
+  }
+  default: {
+    break;
+  }
+  }
 
   return lhsExprNode;
 }
