@@ -8,6 +8,7 @@ add_library(
   parser/ast/proc_decl_node.cc
   parser/ast/assign_stmt_node.cc
   parser/ast/call_stmt_node.cc
+  parser/ast/if_stmt_node.cc
   parser/ast/out_stmt_node.cc
   parser/ast/division_expr_node.cc
   parser/ast/id_expr_node.cc
@@ -16,7 +17,8 @@ add_library(
   parser/ast/minus_expr_node.cc
   parser/ast/multiplication_expr_node.cc
   parser/ast/negative_expr_node.cc
-  parser/ast/plus_expr_node.cc)
+  parser/ast/plus_expr_node.cc
+  parser/ast/odd_test_node.cc)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(parser lexer)
 

@@ -9,6 +9,7 @@ enum class StmtNodeType
 {
   ASSIGN_STMT,
   CALL_STMT,
+  IF_STMT,
   OUT_STMT,
 };
 

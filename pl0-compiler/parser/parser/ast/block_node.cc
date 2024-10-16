@@ -3,6 +3,7 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
+#include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/var_decl_node.hh"
 
@@ -110,6 +111,14 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
             std::dynamic_pointer_cast<CallStmtNode>(rhs.statements_.at(i));
 
         return (*lhsCallStmt == *rhsCallStmt);
+      }
+      case StmtNodeType::IF_STMT: {
+        const auto lhsIfStmt =
+            std::dynamic_pointer_cast<IfStmtNode>(lhs.statements_.at(i));
+        const auto rhsIfStmt =
+            std::dynamic_pointer_cast<IfStmtNode>(rhs.statements_.at(i));
+
+        return (*lhsIfStmt == *rhsIfStmt);
       }
       default: {
         return false;

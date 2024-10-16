@@ -7,11 +7,13 @@
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/division_expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
+#include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -512,6 +514,27 @@ TEST(ParserExprTest, invalidExpr)
   const auto tokens = pl0c::lexer::run(createText(textString));
 
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserIfStmtTest, ifOddTest)
+{
+  const auto textString = std::string{
+      "module myModule; begin if odd 1 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualIfStmtNode =
+      *std::dynamic_pointer_cast<pl0c::parser::IfStmtNode>(
+          programNode.getBlockNode().getStatements().front());
+  const auto expectedIfStmtNode = pl0c::parser::IfStmtNode{
+      std::make_shared<pl0c::parser::OddTestNode>(
+          std::make_shared<pl0c::parser::IntExprNode>(1)),
+      std::vector<std::shared_ptr<pl0c::parser::StmtNode>>{
+          std::make_shared<pl0c::parser::AssignStmtNode>(
+              "x", std::make_shared<pl0c::parser::IntExprNode>(1))}};
+
+  ASSERT_EQ(actualIfStmtNode, expectedIfStmtNode);
 }
 
 TEST(ParserMinusExprTest, identifierMinusNestedMinusExpression)

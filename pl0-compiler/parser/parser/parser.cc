@@ -10,16 +10,19 @@
 #include "parser/ast/division_expr_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
+#include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/input_expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/stmt_node.hh"
+#include "parser/ast/test_node.hh"
 #include "parser/ast/var_decl_node.hh"
 
 #include <cassert>
@@ -401,6 +404,44 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return std::make_shared<CallStmtNode>(procId, arguments);
 }
 
+[[nodiscard]] auto oddTest(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<OddTestNode>
+{
+  expect(lexer::TokenType::ODD, tokens);
+
+  const auto exprNode = expr(tokens);
+
+  return std::make_shared<OddTestNode>(exprNode);
+}
+
+[[nodiscard]] auto test(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<TestNode>
+{
+  return oddTest(tokens);
+}
+
+// forward declaration for ifStmt function
+[[nodiscard]] auto stmtList(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::vector<std::shared_ptr<StmtNode>>;
+
+[[nodiscard]] auto ifStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<StmtNode>
+{
+  expect(lexer::TokenType::IF, tokens);
+
+  const auto testNode = test(tokens);
+
+  expect(lexer::TokenType::THEN, tokens);
+
+  const auto statements = stmtList(tokens);
+
+  expect(lexer::TokenType::END, tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<IfStmtNode>(testNode, statements);
+}
+
 [[nodiscard]] auto outStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<StmtNode>
 {
@@ -435,6 +476,11 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
         statements.push_back(assignStmt(tokens));
       }
 
+      parseStmt();
+      break;
+    }
+    case lexer::TokenType::IF: {
+      statements.push_back(ifStmt(tokens));
       parseStmt();
       break;
     }
