@@ -15,6 +15,7 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
@@ -400,6 +401,20 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return std::make_shared<CallStmtNode>(procId, arguments);
 }
 
+[[nodiscard]] auto outStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<StmtNode>
+{
+  expect(lexer::TokenType::OUTPUT, tokens);
+
+  expect(lexer::TokenType::WALRUS, tokens);
+
+  const auto exprNode = expr(tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<OutStmtNode>(exprNode);
+}
+
 [[nodiscard]] auto stmtList(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::vector<std::shared_ptr<StmtNode>>
 {
@@ -420,6 +435,11 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
         statements.push_back(assignStmt(tokens));
       }
 
+      parseStmt();
+      break;
+    }
+    case lexer::TokenType::OUTPUT: {
+      statements.push_back(outStmt(tokens));
       parseStmt();
       break;
     }
