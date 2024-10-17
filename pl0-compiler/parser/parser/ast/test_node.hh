@@ -7,6 +7,7 @@ namespace parser
 
 enum class TestNodeType
 {
+  EQUAL_TEST,
   ODD_TEST,
 };
 

@@ -2,6 +2,8 @@
 
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/call_stmt_node.hh"
+#include "parser/ast/equal_test_node.hh"
+#include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/odd_test_node.hh"
 
 namespace pl0c
@@ -40,6 +42,14 @@ bool operator==(const WhileStmtNode &lhs, const WhileStmtNode &rhs)
 
     switch (lhs.testNode_->getType())
     {
+    case TestNodeType::EQUAL_TEST: {
+      const auto lhsEqualTest =
+          std::dynamic_pointer_cast<EqualTestNode>(lhs.testNode_);
+      const auto rhsEqualTest =
+          std::dynamic_pointer_cast<EqualTestNode>(rhs.testNode_);
+
+      return (*lhsEqualTest == *rhsEqualTest);
+    }
     case TestNodeType::ODD_TEST: {
       const auto lhsOddTest =
           std::dynamic_pointer_cast<OddTestNode>(lhs.testNode_);
@@ -83,9 +93,9 @@ bool operator==(const WhileStmtNode &lhs, const WhileStmtNode &rhs)
       }
       case StmtNodeType::IF_STMT: {
         const auto lhsIfStmt =
-            std::dynamic_pointer_cast<WhileStmtNode>(lhs.statements_.at(i));
+            std::dynamic_pointer_cast<IfStmtNode>(lhs.statements_.at(i));
         const auto rhsIfStmt =
-            std::dynamic_pointer_cast<WhileStmtNode>(rhs.statements_.at(i));
+            std::dynamic_pointer_cast<IfStmtNode>(rhs.statements_.at(i));
 
         return (*lhsIfStmt == *rhsIfStmt);
       }

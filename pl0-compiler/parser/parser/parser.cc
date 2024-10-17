@@ -8,6 +8,7 @@
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/division_expr_node.hh"
+#include "parser/ast/equal_test_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/if_stmt_node.hh"
@@ -98,7 +99,7 @@ auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
 
   const auto declTypeToken = type(tokens);
 
-  expect(lexer::TokenType::ASSIGNMENT, tokens);
+  expect(lexer::TokenType::EQ, tokens);
 
   const auto declConstExprToken = constExpr(tokens);
 
@@ -405,20 +406,30 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   return std::make_shared<CallStmtNode>(procId, arguments);
 }
 
-[[nodiscard]] auto oddTest(std::deque<std::shared_ptr<lexer::Token>> &tokens)
-    -> std::shared_ptr<OddTestNode>
-{
-  expect(lexer::TokenType::ODD, tokens);
-
-  const auto exprNode = expr(tokens);
-
-  return std::make_shared<OddTestNode>(exprNode);
-}
-
 [[nodiscard]] auto test(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<TestNode>
 {
-  return oddTest(tokens);
+  if (lexer::TokenType::ODD == tokens.front()->getType())
+  {
+    next(tokens);
+    return std::make_shared<OddTestNode>(expr(tokens));
+  }
+
+  const auto lhsExpr = expr(tokens);
+
+  switch (tokens.front()->getType())
+  {
+  case lexer::TokenType::EQ: {
+    next(tokens);
+    return std::make_shared<EqualTestNode>(lhsExpr, expr(tokens));
+  }
+  default: {
+    const auto errMsg = std::string{
+        "parser error: unknown test operator: " +
+        lexer::tokenTypeNameMap.at(tokens.front()->getType()) + " token."};
+    assert(errMsg.c_str() && false);
+  }
+  }
 }
 
 // forward declaration for ifStmt function
