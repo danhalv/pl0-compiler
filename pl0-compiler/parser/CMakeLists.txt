@@ -10,6 +10,7 @@ add_library(
   parser/ast/call_stmt_node.cc
   parser/ast/if_stmt_node.cc
   parser/ast/out_stmt_node.cc
+  parser/ast/while_stmt_node.cc
   parser/ast/division_expr_node.cc
   parser/ast/id_expr_node.cc
   parser/ast/input_expr_node.cc

@@ -1,37 +1,38 @@
-#include "parser/ast/if_stmt_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/odd_test_node.hh"
-#include "parser/ast/while_stmt_node.hh"
 
 namespace pl0c
 {
 namespace parser
 {
 
-IfStmtNode::IfStmtNode(const std::shared_ptr<TestNode> testNode,
-                       const std::vector<std::shared_ptr<StmtNode>> &statements)
+WhileStmtNode::WhileStmtNode(
+    const std::shared_ptr<TestNode> testNode,
+    const std::vector<std::shared_ptr<StmtNode>> &statements)
     : testNode_{testNode}, statements_{statements}
 {
 }
 
-auto IfStmtNode::getStatements() const -> std::vector<std::shared_ptr<StmtNode>>
+auto WhileStmtNode::getStatements() const
+    -> std::vector<std::shared_ptr<StmtNode>>
 {
   return this->statements_;
 }
 
-auto IfStmtNode::getTestNode() const -> std::shared_ptr<TestNode>
+auto WhileStmtNode::getTestNode() const -> std::shared_ptr<TestNode>
 {
   return this->testNode_;
 }
 
-auto IfStmtNode::getType() const -> StmtNodeType
+auto WhileStmtNode::getType() const -> StmtNodeType
 {
-  return StmtNodeType::IF_STMT;
+  return StmtNodeType::WHILE_STMT;
 }
 
-bool operator==(const IfStmtNode &lhs, const IfStmtNode &rhs)
+bool operator==(const WhileStmtNode &lhs, const WhileStmtNode &rhs)
 {
   const bool sameTestNode = [&lhs, &rhs]() {
     if (lhs.testNode_->getType() != rhs.testNode_->getType())
@@ -82,9 +83,9 @@ bool operator==(const IfStmtNode &lhs, const IfStmtNode &rhs)
       }
       case StmtNodeType::IF_STMT: {
         const auto lhsIfStmt =
-            std::dynamic_pointer_cast<IfStmtNode>(lhs.statements_.at(i));
+            std::dynamic_pointer_cast<WhileStmtNode>(lhs.statements_.at(i));
         const auto rhsIfStmt =
-            std::dynamic_pointer_cast<IfStmtNode>(rhs.statements_.at(i));
+            std::dynamic_pointer_cast<WhileStmtNode>(rhs.statements_.at(i));
 
         return (*lhsIfStmt == *rhsIfStmt);
       }
@@ -108,7 +109,7 @@ bool operator==(const IfStmtNode &lhs, const IfStmtNode &rhs)
   return (sameTestNode && sameStatementList);
 }
 
-bool operator!=(const IfStmtNode &lhs, const IfStmtNode &rhs)
+bool operator!=(const WhileStmtNode &lhs, const WhileStmtNode &rhs)
 {
   return !(lhs == rhs);
 }

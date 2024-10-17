@@ -19,6 +19,7 @@
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/var_decl_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 #include "parser/parser.hh"
 
 #include <gtest/gtest.h>
@@ -777,4 +778,25 @@ TEST(ParserProgramSymbolTest, missingDotToken)
   const auto tokens = pl0c::lexer::run(createText(textString));
 
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
+}
+
+TEST(ParserWhileStmtTest, whileOddTest)
+{
+  const auto textString = std::string{
+      "module myModule; begin while odd 1 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualWhileStmtNode =
+      *std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+          programNode.getBlockNode().getStatements().front());
+  const auto expectedWhileStmtNode = pl0c::parser::WhileStmtNode{
+      std::make_shared<pl0c::parser::OddTestNode>(
+          std::make_shared<pl0c::parser::IntExprNode>(1)),
+      std::vector<std::shared_ptr<pl0c::parser::StmtNode>>{
+          std::make_shared<pl0c::parser::AssignStmtNode>(
+              "x", std::make_shared<pl0c::parser::IntExprNode>(1))}};
+
+  ASSERT_EQ(actualWhileStmtNode, expectedWhileStmtNode);
 }

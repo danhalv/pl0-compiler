@@ -11,6 +11,7 @@ enum class StmtNodeType
   CALL_STMT,
   IF_STMT,
   OUT_STMT,
+  WHILE_STMT,
 };
 
 class StmtNode

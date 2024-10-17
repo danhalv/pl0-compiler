@@ -6,6 +6,7 @@
 #include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/var_decl_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 
 namespace pl0c
 {
@@ -119,6 +120,14 @@ bool operator==(const BlockNode &lhs, const BlockNode &rhs)
             std::dynamic_pointer_cast<IfStmtNode>(rhs.statements_.at(i));
 
         return (*lhsIfStmt == *rhsIfStmt);
+      }
+      case StmtNodeType::WHILE_STMT: {
+        const auto lhsWhileStmt =
+            std::dynamic_pointer_cast<WhileStmtNode>(lhs.statements_.at(i));
+        const auto rhsWhileStmt =
+            std::dynamic_pointer_cast<WhileStmtNode>(rhs.statements_.at(i));
+
+        return (*lhsWhileStmt == *rhsWhileStmt);
       }
       default: {
         return false;

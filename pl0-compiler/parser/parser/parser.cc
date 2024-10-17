@@ -24,6 +24,7 @@
 #include "parser/ast/stmt_node.hh"
 #include "parser/ast/test_node.hh"
 #include "parser/ast/var_decl_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 
 #include <cassert>
 #include <deque>
@@ -425,7 +426,7 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::vector<std::shared_ptr<StmtNode>>;
 
 [[nodiscard]] auto ifStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
-    -> std::shared_ptr<StmtNode>
+    -> std::shared_ptr<IfStmtNode>
 {
   expect(lexer::TokenType::IF, tokens);
 
@@ -440,6 +441,24 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   expect(lexer::TokenType::SEMI_COLON, tokens);
 
   return std::make_shared<IfStmtNode>(testNode, statements);
+}
+
+[[nodiscard]] auto whileStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+    -> std::shared_ptr<WhileStmtNode>
+{
+  expect(lexer::TokenType::WHILE, tokens);
+
+  const auto testNode = test(tokens);
+
+  expect(lexer::TokenType::THEN, tokens);
+
+  const auto statements = stmtList(tokens);
+
+  expect(lexer::TokenType::END, tokens);
+
+  expect(lexer::TokenType::SEMI_COLON, tokens);
+
+  return std::make_shared<WhileStmtNode>(testNode, statements);
 }
 
 [[nodiscard]] auto outStmt(std::deque<std::shared_ptr<lexer::Token>> &tokens)
@@ -486,6 +505,11 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
     }
     case lexer::TokenType::OUTPUT: {
       statements.push_back(outStmt(tokens));
+      parseStmt();
+      break;
+    }
+    case lexer::TokenType::WHILE: {
+      statements.push_back(whileStmt(tokens));
       parseStmt();
       break;
     }
