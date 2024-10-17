@@ -3,6 +3,7 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/equal_test_node.hh"
+#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 #include "parser/ast/while_stmt_node.hh"
 
@@ -47,6 +48,14 @@ bool operator==(const IfStmtNode &lhs, const IfStmtNode &rhs)
           std::dynamic_pointer_cast<EqualTestNode>(rhs.testNode_);
 
       return (*lhsEqualTest == *rhsEqualTest);
+    }
+    case TestNodeType::NOT_EQUAL_TEST: {
+      const auto lhsNotEqualTest =
+          std::dynamic_pointer_cast<NotEqualTestNode>(lhs.testNode_);
+      const auto rhsNotEqualTest =
+          std::dynamic_pointer_cast<NotEqualTestNode>(rhs.testNode_);
+
+      return (*lhsNotEqualTest == *rhsNotEqualTest);
     }
     case TestNodeType::ODD_TEST: {
       const auto lhsOddTest =

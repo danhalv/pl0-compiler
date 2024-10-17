@@ -14,6 +14,7 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
@@ -602,6 +603,26 @@ TEST(ParserMultiplicationExprTest, nestedMultiplicationExpressionTimesId)
           std::make_shared<pl0c::parser::IdExprNode>("x")};
 
   ASSERT_EQ(actualMultiplicationExprNode, expectedMultiplicationExprNode);
+}
+
+TEST(ParserComparisonTest, notEqual)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 <> 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualNotEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::NotEqualTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedNotEqualTestNode = pl0c::parser::NotEqualTestNode{
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualNotEqualTestNode, expectedNotEqualTestNode);
 }
 
 TEST(ParserOutStmtTest, outputPlusExpr)

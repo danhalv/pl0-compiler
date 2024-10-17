@@ -17,6 +17,7 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
@@ -422,6 +423,10 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   case lexer::TokenType::EQ: {
     next(tokens);
     return std::make_shared<EqualTestNode>(lhsExpr, expr(tokens));
+  }
+  case lexer::TokenType::NEQ: {
+    next(tokens);
+    return std::make_shared<NotEqualTestNode>(lhsExpr, expr(tokens));
   }
   default: {
     const auto errMsg = std::string{
