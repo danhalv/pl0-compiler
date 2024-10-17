@@ -283,14 +283,14 @@ TEST(LexerTest, lexAssigmentToken)
 {
   const auto text = std::vector<unsigned char>{'='};
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::ASSIGNMENT});
+            pl0c::lexer::Token{pl0c::lexer::TokenType::EQ});
 }
 
 TEST(LexerTest, lexDiamondToken)
 {
   const auto text = std::vector<unsigned char>{'<', '>'};
   ASSERT_EQ(*pl0c::lexer::run(text).front(),
-            pl0c::lexer::Token{pl0c::lexer::TokenType::DIAMOND});
+            pl0c::lexer::Token{pl0c::lexer::TokenType::NEQ});
 }
 
 TEST(LexerTest, lexLeqToken)
