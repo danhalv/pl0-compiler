@@ -19,8 +19,7 @@ add_library(
   parser/ast/multiplication_expr_node.cc
   parser/ast/negative_expr_node.cc
   parser/ast/plus_expr_node.cc
-  parser/ast/equal_test_node.cc
-  parser/ast/not_equal_test_node.cc
+  parser/ast/comparison_test_node.cc
   parser/ast/odd_test_node.cc)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(parser lexer)

@@ -2,9 +2,8 @@
 
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/call_stmt_node.hh"
-#include "parser/ast/equal_test_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/if_stmt_node.hh"
-#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 
 namespace pl0c
@@ -43,21 +42,18 @@ bool operator==(const WhileStmtNode &lhs, const WhileStmtNode &rhs)
 
     switch (lhs.testNode_->getType())
     {
-    case TestNodeType::EQUAL_TEST: {
-      const auto lhsEqualTest =
-          std::dynamic_pointer_cast<EqualTestNode>(lhs.testNode_);
-      const auto rhsEqualTest =
-          std::dynamic_pointer_cast<EqualTestNode>(rhs.testNode_);
+    case TestNodeType::EQ_TEST:
+    case TestNodeType::GE_TEST:
+    case TestNodeType::GEQ_TEST:
+    case TestNodeType::LE_TEST:
+    case TestNodeType::LEQ_TEST:
+    case TestNodeType::NEQ_TEST: {
+      const auto lhsComparisonTest =
+          std::dynamic_pointer_cast<ComparisonTestNode>(lhs.testNode_);
+      const auto rhsComparisonTest =
+          std::dynamic_pointer_cast<ComparisonTestNode>(rhs.testNode_);
 
-      return (*lhsEqualTest == *rhsEqualTest);
-    }
-    case TestNodeType::NOT_EQUAL_TEST: {
-      const auto lhsNotEqualTest =
-          std::dynamic_pointer_cast<NotEqualTestNode>(lhs.testNode_);
-      const auto rhsNotEqualTest =
-          std::dynamic_pointer_cast<NotEqualTestNode>(rhs.testNode_);
-
-      return (*lhsNotEqualTest == *rhsNotEqualTest);
+      return (*lhsComparisonTest == *rhsComparisonTest);
     }
     case TestNodeType::ODD_TEST: {
       const auto lhsOddTest =

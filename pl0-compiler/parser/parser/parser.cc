@@ -5,10 +5,10 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/call_stmt_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/division_expr_node.hh"
-#include "parser/ast/equal_test_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/if_stmt_node.hh"
@@ -17,7 +17,6 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
-#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
@@ -422,11 +421,33 @@ auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
   {
   case lexer::TokenType::EQ: {
     next(tokens);
-    return std::make_shared<EqualTestNode>(lhsExpr, expr(tokens));
+    return std::make_shared<ComparisonTestNode>(TestNodeType::EQ_TEST, lhsExpr,
+                                                expr(tokens));
+  }
+  case lexer::TokenType::LE: {
+    next(tokens);
+    return std::make_shared<ComparisonTestNode>(TestNodeType::LE_TEST, lhsExpr,
+                                                expr(tokens));
+  }
+  case lexer::TokenType::LEQ: {
+    next(tokens);
+    return std::make_shared<ComparisonTestNode>(TestNodeType::LEQ_TEST, lhsExpr,
+                                                expr(tokens));
+  }
+  case lexer::TokenType::GE: {
+    next(tokens);
+    return std::make_shared<ComparisonTestNode>(TestNodeType::GE_TEST, lhsExpr,
+                                                expr(tokens));
+  }
+  case lexer::TokenType::GEQ: {
+    next(tokens);
+    return std::make_shared<ComparisonTestNode>(TestNodeType::GEQ_TEST, lhsExpr,
+                                                expr(tokens));
   }
   case lexer::TokenType::NEQ: {
     next(tokens);
-    return std::make_shared<NotEqualTestNode>(lhsExpr, expr(tokens));
+    return std::make_shared<ComparisonTestNode>(TestNodeType::NEQ_TEST, lhsExpr,
+                                                expr(tokens));
   }
   default: {
     const auto errMsg = std::string{

@@ -1,4 +1,4 @@
-#include "parser/ast/not_equal_test_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 
 #include "parser/ast/division_expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
@@ -14,28 +14,31 @@ namespace pl0c
 namespace parser
 {
 
-NotEqualTestNode::NotEqualTestNode(const std::shared_ptr<ExprNode> lhsExprNode,
-                                   const std::shared_ptr<ExprNode> rhsExprNode)
-    : lhsExprNode_{lhsExprNode}, rhsExprNode_{rhsExprNode}
+ComparisonTestNode::ComparisonTestNode(
+    const TestNodeType testNodeType,
+    const std::shared_ptr<ExprNode> lhsExprNode,
+    const std::shared_ptr<ExprNode> rhsExprNode)
+    : testNodeType_{testNodeType}, lhsExprNode_{lhsExprNode},
+      rhsExprNode_{rhsExprNode}
 {
 }
 
-auto NotEqualTestNode::getLhsExprNode() const -> std::shared_ptr<ExprNode>
+auto ComparisonTestNode::getLhsExprNode() const -> std::shared_ptr<ExprNode>
 {
   return this->lhsExprNode_;
 }
 
-auto NotEqualTestNode::getRhsExprNode() const -> std::shared_ptr<ExprNode>
+auto ComparisonTestNode::getRhsExprNode() const -> std::shared_ptr<ExprNode>
 {
   return this->rhsExprNode_;
 }
 
-auto NotEqualTestNode::getType() const -> TestNodeType
+auto ComparisonTestNode::getType() const -> TestNodeType
 {
-  return TestNodeType::NOT_EQUAL_TEST;
+  return this->testNodeType_;
 }
 
-bool operator==(const NotEqualTestNode &lhs, const NotEqualTestNode &rhs)
+bool operator==(const ComparisonTestNode &lhs, const ComparisonTestNode &rhs)
 {
   auto sameExpr = [](const std::shared_ptr<ExprNode> lhsExpr,
                      const std::shared_ptr<ExprNode> rhsExpr) {
@@ -69,7 +72,7 @@ bool operator==(const NotEqualTestNode &lhs, const NotEqualTestNode &rhs)
           sameExpr(lhs.rhsExprNode_, rhs.rhsExprNode_));
 }
 
-bool operator!=(const NotEqualTestNode &lhs, const NotEqualTestNode &rhs)
+bool operator!=(const ComparisonTestNode &lhs, const ComparisonTestNode &rhs)
 {
   return !(lhs == rhs);
 }

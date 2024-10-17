@@ -7,8 +7,12 @@ namespace parser
 
 enum class TestNodeType
 {
-  EQUAL_TEST,
-  NOT_EQUAL_TEST,
+  EQ_TEST,
+  GE_TEST,
+  GEQ_TEST,
+  LE_TEST,
+  LEQ_TEST,
+  NEQ_TEST,
   ODD_TEST,
 };
 

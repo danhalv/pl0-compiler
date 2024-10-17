@@ -4,9 +4,9 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/call_stmt_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/division_expr_node.hh"
-#include "parser/ast/equal_test_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/input_expr_node.hh"
@@ -14,7 +14,6 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
-#include "parser/ast/not_equal_test_node.hh"
 #include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
@@ -519,26 +518,6 @@ TEST(ParserExprTest, invalidExpr)
   ASSERT_DEATH(pl0c::parser::run(tokens), "");
 }
 
-TEST(ParserEqualTestTest, integerEquality)
-{
-  const auto textString = std::string{
-      "module myModule; begin while 1 = 2 then x := 1; end; end myModule."};
-
-  const auto tokens = pl0c::lexer::run(createText(textString));
-  const auto programNode = pl0c::parser::run(tokens);
-
-  const auto actualEqualTestNode =
-      *std::dynamic_pointer_cast<pl0c::parser::EqualTestNode>(
-          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
-              programNode.getBlockNode().getStatements().front())
-              ->getTestNode());
-  const auto expectedEqualTestNode = pl0c::parser::EqualTestNode{
-      std::make_shared<pl0c::parser::IntExprNode>(1),
-      std::make_shared<pl0c::parser::IntExprNode>(2)};
-
-  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
-}
-
 TEST(ParserIfStmtTest, ifOddTest)
 {
   const auto textString = std::string{
@@ -605,7 +584,28 @@ TEST(ParserMultiplicationExprTest, nestedMultiplicationExpressionTimesId)
   ASSERT_EQ(actualMultiplicationExprNode, expectedMultiplicationExprNode);
 }
 
-TEST(ParserComparisonTest, notEqual)
+TEST(ParserComparisonTest, integerEquality)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 = 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::EQ_TEST,
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
+}
+
+TEST(ParserComparisonTest, integerInequality)
 {
   const auto textString = std::string{
       "module myModule; begin while 1 <> 2 then x := 1; end; end myModule."};
@@ -614,15 +614,100 @@ TEST(ParserComparisonTest, notEqual)
   const auto programNode = pl0c::parser::run(tokens);
 
   const auto actualNotEqualTestNode =
-      *std::dynamic_pointer_cast<pl0c::parser::NotEqualTestNode>(
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
           std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
               programNode.getBlockNode().getStatements().front())
               ->getTestNode());
-  const auto expectedNotEqualTestNode = pl0c::parser::NotEqualTestNode{
+  const auto expectedNotEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::NEQ_TEST,
       std::make_shared<pl0c::parser::IntExprNode>(1),
       std::make_shared<pl0c::parser::IntExprNode>(2)};
 
   ASSERT_EQ(actualNotEqualTestNode, expectedNotEqualTestNode);
+}
+
+TEST(ParserComparisonTest, integerLessThan)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 < 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::LE_TEST,
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
+}
+
+TEST(ParserComparisonTest, integerLessThanOrEqual)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 <= 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::LEQ_TEST,
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
+}
+
+TEST(ParserComparisonTest, integerGreaterThan)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 > 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::GE_TEST,
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
+}
+
+TEST(ParserComparisonTest, integerGreaterThanOrEqual)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 >= 2 then x := 1; end; end myModule."};
+
+  const auto tokens = pl0c::lexer::run(createText(textString));
+  const auto programNode = pl0c::parser::run(tokens);
+
+  const auto actualEqualTestNode =
+      *std::dynamic_pointer_cast<pl0c::parser::ComparisonTestNode>(
+          std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
+              programNode.getBlockNode().getStatements().front())
+              ->getTestNode());
+  const auto expectedEqualTestNode = pl0c::parser::ComparisonTestNode{
+      pl0c::parser::TestNodeType::GEQ_TEST,
+      std::make_shared<pl0c::parser::IntExprNode>(1),
+      std::make_shared<pl0c::parser::IntExprNode>(2)};
+
+  ASSERT_EQ(actualEqualTestNode, expectedEqualTestNode);
 }
 
 TEST(ParserOutStmtTest, outputPlusExpr)
@@ -855,7 +940,8 @@ TEST(ParserWhileStmtTest, whileEqualTest)
       *std::dynamic_pointer_cast<pl0c::parser::WhileStmtNode>(
           programNode.getBlockNode().getStatements().front());
   const auto expectedWhileStmtNode = pl0c::parser::WhileStmtNode{
-      std::make_shared<pl0c::parser::EqualTestNode>(
+      std::make_shared<pl0c::parser::ComparisonTestNode>(
+          pl0c::parser::TestNodeType::EQ_TEST,
           std::make_shared<pl0c::parser::IntExprNode>(1),
           std::make_shared<pl0c::parser::IntExprNode>(2)),
       std::vector<std::shared_ptr<pl0c::parser::StmtNode>>{
