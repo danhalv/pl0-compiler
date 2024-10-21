@@ -1,21 +1,26 @@
 services:
   build:
+    platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_build
     command: bash -c "make all"
   clang-format-check:
+    platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_clang-format-check
     command: bash -c "make clang-format-check"
   cmake-format-check:
+    platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_cmake-format-check
     command: bash -c "make cmake-format-check"
   run:
+    platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_run
-    command: bash -c "make hello-world && ./hello-world"
+    command: bash -c "make main && ./pl0-compiler/codegen/main"
   test:
+    platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_test
-    command: bash -c "make all && ctest --output-on-failure"
+    command: bash -c "make all && cd pl0-compiler/ && ctest --output-on-failure"

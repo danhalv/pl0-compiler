@@ -1,4 +1,4 @@
-clang-format==19.1.0
+clang-format==15.0.6
 cmake-format==0.6.13
 cmakelang==0.6.13
 six==1.16.0

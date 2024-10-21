@@ -87,8 +87,8 @@ auto expect(const lexer::TokenType expectedTokenType,
   return expect(lexer::TokenType::INT, tokens);
 }
 
-[[nodiscard]]
-auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+[[nodiscard]] auto constDeclItem(
+    std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<ConstDeclNode>
 {
   const auto declIdToken = expect(lexer::TokenType::ID, tokens);
@@ -191,8 +191,8 @@ auto constDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
       declId, procArguments, std::make_shared<BlockNode>(procBlockNode));
 }
 
-[[nodiscard]]
-auto varDeclItem(std::deque<std::shared_ptr<lexer::Token>> &tokens)
+[[nodiscard]] auto varDeclItem(
+    std::deque<std::shared_ptr<lexer::Token>> &tokens)
     -> std::shared_ptr<VarDeclNode>
 {
   const auto declIdToken = expect(lexer::TokenType::ID, tokens);

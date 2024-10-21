@@ -6,7 +6,7 @@ namespace parser
 {
 
 VarDeclNode::VarDeclNode(const std::string &declId,
-                         const std::shared_ptr<lexer::Token> &declTypeToken)
+                         const std::shared_ptr<lexer::Token> declTypeToken)
     : declId_{declId}, declTypeToken_{declTypeToken}
 {
 }

@@ -17,9 +17,7 @@ class VarDeclNode : public DeclNode
 public:
   VarDeclNode() = delete;
   VarDeclNode(const std::string &declId,
-              const std::shared_ptr<lexer::Token> &declTypeToken);
-  VarDeclNode(const VarDeclNode &) = delete;
-  VarDeclNode &operator=(const DeclNodeType &) = delete;
+              const std::shared_ptr<lexer::Token> declTypeToken);
 
   auto getDeclId() const -> std::string override;
   auto getDeclTypeToken() const -> std::shared_ptr<lexer::Token>;
