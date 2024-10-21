@@ -7,8 +7,8 @@
 
 int main(void)
 {
-  const auto textString = std::string{
-      "module myModule; begin while 1 = 2 then x := 1; end; end myModule."};
+  const auto textString =
+      std::string{"module myModule; begin output := 14; end myModule."};
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());
 
@@ -17,10 +17,12 @@ int main(void)
   auto assemblyFile = std::ifstream{"program.asm"};
   if (assemblyFile.is_open())
     std::cout << assemblyFile.rdbuf();
+  std::cout << std::endl;
   assemblyFile.close();
 
   system("as -o program.o program.asm");
-  system("ld -s -o program program.o");
+  system("ld -o program -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc "
+         "program.o");
   system("./program");
 
   return 0;
