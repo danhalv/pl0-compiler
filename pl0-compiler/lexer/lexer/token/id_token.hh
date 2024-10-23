@@ -10,16 +10,19 @@ namespace pl0c
 namespace lexer
 {
 
-struct IdToken : public Token
+class IdToken : public Token
 {
+public:
   IdToken() = delete;
   IdToken(const std::string id);
 
+  auto getId() const -> std::string;
   auto toString() const -> std::string override;
 
   friend bool operator==(const IdToken &, const IdToken &);
   friend bool operator!=(const IdToken &, const IdToken &);
 
+private:
   const std::string id_;
 };
 

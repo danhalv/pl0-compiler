@@ -70,7 +70,7 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       break;
     }
     case '=': {
-      tokens.push_back(std::make_shared<Token>(TokenType::ASSIGNMENT));
+      tokens.push_back(std::make_shared<Token>(TokenType::EQ));
       break;
     }
     case '<': {
@@ -78,9 +78,9 @@ auto run(std::vector<unsigned char> text) -> std::vector<std::shared_ptr<Token>>
       {
         switch (text.at(i + 1))
         {
-        // <> diamond operator
+        // <> neq operator
         case '>': {
-          tokens.push_back(std::make_shared<Token>(TokenType::DIAMOND));
+          tokens.push_back(std::make_shared<Token>(TokenType::NEQ));
           ++i;
           break;
         }

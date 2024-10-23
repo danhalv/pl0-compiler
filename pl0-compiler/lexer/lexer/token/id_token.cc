@@ -12,6 +12,11 @@ IdToken::IdToken(const std::string id) : Token(TokenType::ID), id_{id}
 {
 }
 
+auto IdToken::getId() const -> std::string
+{
+  return this->id_;
+}
+
 auto IdToken::toString() const -> std::string
 {
   return std::string{"IdToken(\"" + this->id_ + "\")"};
