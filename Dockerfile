@@ -26,10 +26,10 @@ COPY CMakeLists.txt .clang-format .clang-tidy .
 COPY cmake cmake/
 COPY pl0-compiler/CMakeLists.txt pl0-compiler/CMakeLists.txt
 COPY pl0-compiler/lexer pl0-compiler/lexer/
-RUN cd build && cmake ../ && make lexer
+RUN cd build && cmake ../ && make lexer lexer_test
 
 COPY pl0-compiler/parser pl0-compiler/parser/
-RUN cd build && cmake ../ && make parser
+RUN cd build && cmake ../ && make parser parser_test
 
 COPY pl0-compiler/codegen pl0-compiler/codegen
 

@@ -5,10 +5,12 @@
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/out_stmt_node.hh"
+#include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/stmt_node.hh"
 
 #include <cassert>
+#include <cstdint>
 #include <fstream>
 #include <memory>
 
@@ -28,7 +30,6 @@ struct CgenContext
 auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     -> ScratchRegister
 {
-  const auto reg = ctx.regMgr.alloc();
 
   switch (exprNode->getType())
   {
@@ -37,6 +38,7 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
         std::dynamic_pointer_cast<parser::IntExprNode>(exprNode);
     const auto value = std::to_string(intExprNode->getValue());
 
+    const auto reg = ctx.regMgr.alloc();
     if (reg == ScratchRegister::NONE)
     {
       ctx.asmFile << "push $" << value << "\n";
@@ -47,7 +49,47 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
                   << scratchRegisterStringMap.at(reg) << "\n";
     }
 
-    break;
+    return reg;
+  }
+  case parser::ExprNodeType::PLUS_EXPR: {
+    const auto plusExprNode =
+        std::dynamic_pointer_cast<parser::PlusExprNode>(exprNode);
+
+    auto leftExprReg = cgen(plusExprNode->getLhsExpr(), ctx);
+    auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
+
+    if (leftExprReg == ScratchRegister::NONE &&
+        rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.asmFile << "pop %rax\n"
+                  << "add %rsp, %rax\n"
+                  << "pop\n"
+                  << "push %rax\n";
+      return ScratchRegister::NONE;
+    }
+
+    if (leftExprReg == ScratchRegister::NONE)
+    {
+      ctx.asmFile << "pop %rax\n"
+                  << "add " << scratchRegisterStringMap.at(rightExprReg)
+                  << ", %rax\n"
+                  << "\n";
+      return rightExprReg;
+    }
+
+    if (rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.asmFile << "pop %rax\n"
+                  << "add " << scratchRegisterStringMap.at(leftExprReg)
+                  << ", %rax\n"
+                  << "\n";
+      return leftExprReg;
+    }
+
+    ctx.asmFile << "add " << scratchRegisterStringMap.at(leftExprReg) << ", "
+                << scratchRegisterStringMap.at(rightExprReg) << "\n";
+    ctx.regMgr.free(leftExprReg);
+    return rightExprReg;
   }
   default: {
     const auto errMsg =
@@ -56,7 +98,7 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
   }
   }
 
-  return reg;
+  return ScratchRegister::NONE;
 }
 
 auto cgen(const std::shared_ptr<parser::StmtNode> stmtNode, CgenContext &ctx)
