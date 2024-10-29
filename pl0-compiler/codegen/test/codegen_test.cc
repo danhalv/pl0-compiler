@@ -55,3 +55,17 @@ TEST(CodegenAssignTest, assignDeclaredVariable)
 
   ASSERT_EQ(programOutput, "5");
 }
+
+TEST(CodegenConstDeclTest, outputAliasedConstDeclaration)
+{
+  const auto textString =
+      std::string{"module myModule; const i : int = 11; const x : int = i; "
+                  "begin output := x; end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "11");
+}

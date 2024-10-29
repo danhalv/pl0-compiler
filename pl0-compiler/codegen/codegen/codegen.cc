@@ -1,8 +1,10 @@
 #include "codegen/codegen.hh"
 
 #include "codegen/scratch_register_manager.hh"
+#include "lexer/token/token_type.hh"
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
+#include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
@@ -190,6 +192,40 @@ auto cgen(std::shared_ptr<parser::DeclNode> declNode, CgenContext &ctx) -> void
 {
   switch (declNode->getType())
   {
+  case parser::DeclNodeType::CONST_DECL: {
+    const auto constDeclNode =
+        std::dynamic_pointer_cast<parser::ConstDeclNode>(declNode);
+    const auto exprToken = constDeclNode->getDeclExprToken();
+
+    switch (exprToken->getType())
+    {
+    case lexer::TokenType::ID: {
+      const auto exprId =
+          std::dynamic_pointer_cast<lexer::IdToken>(exprToken)->getId();
+
+      ctx.roDataSection << ".set " << constDeclNode->getDeclId() << ", "
+                        << exprId << "\n";
+
+      break;
+    }
+    case lexer::TokenType::INT_LITERAL: {
+      const auto exprInt =
+          std::dynamic_pointer_cast<lexer::IntegerToken>(exprToken)->getInt();
+
+      ctx.roDataSection << constDeclNode->getDeclId() << ": .value " << exprInt
+                        << "\n";
+
+      break;
+    }
+    default: {
+      const auto errMsg = std::string{
+          "codegen error: unsupported expression type for const declaration."};
+      assert(errMsg.c_str() && false);
+    }
+    }
+
+    break;
+  }
   case parser::DeclNodeType::VAR_DECL: {
     const auto varDeclNode =
         std::dynamic_pointer_cast<parser::VarDeclNode>(declNode);
