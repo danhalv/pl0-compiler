@@ -42,3 +42,16 @@ TEST(CodegenAdditionTest, addTwoIntegers)
 
   ASSERT_EQ(programOutput, "25");
 }
+
+TEST(CodegenAssignTest, assignDeclaredVariable)
+{
+  const auto textString = std::string{
+      "module myModule; var i : int; begin i := 5; output := i; end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "5");
+}

@@ -7,8 +7,8 @@
 
 int main(void)
 {
-  const auto textString =
-      std::string{"module myModule; begin output := 10 + 15; end myModule."};
+  const auto textString = std::string{
+      "module myModule; var i : int; begin i := 5; output := i; end myModule."};
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());
 
