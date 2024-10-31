@@ -7,9 +7,26 @@
 
 int main(void)
 {
+  // const auto textString = std::string{"module myModule; procedure foo();"
+  //                                     "const x : int = 7; procedure bar(); "
+  //                                     "var x : int; begin x := 5; output :=
+  //                                     x; " "end bar; begin bar(); output :=
+  //                                     x; end " "foo; begin foo(); end
+  //                                     myModule."};
+  // const auto textString = std::string{
+  //    "module myModule; procedure foo(x : int, y : int);"
+  //    "const z : int = y; var a : int; begin a := x; output := a; output :=
+  //    z;" "end foo; begin foo(3, 6); end myModule."};
   const auto textString =
-      std::string{"module myModule; const i : int = 11; const x : int = i; "
-                  "begin output := x; end myModule."};
+      std::string{"module myModule;"
+                  "procedure foo(x : int, y : int, z : int);"
+                  //"const z : int = x;"
+                  "procedure bar(a : int);"
+                  "begin output := a;"
+                  "end bar;"
+                  "begin bar(y);"
+                  "end foo;"
+                  "begin foo(2, 3, 4); end myModule."};
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());
 

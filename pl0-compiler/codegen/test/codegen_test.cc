@@ -40,7 +40,7 @@ TEST(CodegenAdditionTest, addTwoIntegers)
 
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
-  ASSERT_EQ(programOutput, "25");
+  ASSERT_EQ(programOutput, "25\n");
 }
 
 TEST(CodegenAssignTest, assignDeclaredVariable)
@@ -53,7 +53,7 @@ TEST(CodegenAssignTest, assignDeclaredVariable)
 
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
-  ASSERT_EQ(programOutput, "5");
+  ASSERT_EQ(programOutput, "5\n");
 }
 
 TEST(CodegenConstDeclTest, outputAliasedConstDeclaration)
@@ -67,5 +67,26 @@ TEST(CodegenConstDeclTest, outputAliasedConstDeclaration)
 
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
-  ASSERT_EQ(programOutput, "11");
+  ASSERT_EQ(programOutput, "11\n");
+}
+
+TEST(CodegenProcDeclTest, nestedProcedures)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "procedure foo(x : int, y : int);"
+                                      "const z : int = x;"
+                                      "procedure bar(a : int);"
+                                      "var x : int;"
+                                      "begin x := a; output := x;"
+                                      "end bar;"
+                                      "begin output := z; bar(y);"
+                                      "end foo;"
+                                      "begin foo(2, 7); end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "2\n7\n");
 }
