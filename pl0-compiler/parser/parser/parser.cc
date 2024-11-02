@@ -487,7 +487,7 @@ auto expect(const lexer::TokenType expectedTokenType,
 
   const auto testNode = test(tokens);
 
-  expect(lexer::TokenType::THEN, tokens);
+  expect(lexer::TokenType::DO, tokens);
 
   const auto statements = stmtList(tokens);
 
