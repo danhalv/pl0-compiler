@@ -90,3 +90,34 @@ TEST(CodegenProcDeclTest, nestedProcedures)
 
   ASSERT_EQ(programOutput, "2\n7\n");
 }
+
+TEST(CodegenIfStmtTest, outputOnTrue)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "const x : int = 1;"
+                                      "begin if x < 2 then output := 1; end;"
+                                      "if 0 < 2 then output := 2; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n2\n");
+}
+
+TEST(CodegenIfStmtTest, noOutputOnFalse)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "const x : int = 1;"
+                                      "begin if 2 < x then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "");
+}

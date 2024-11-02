@@ -1,20 +1,24 @@
 #include "codegen/codegen.hh"
 
+#include "codegen/label_manager.hh"
 #include "codegen/scratch_register_manager.hh"
 #include "lexer/token/token_type.hh"
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/call_stmt_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
+#include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/program_node.hh"
 #include "parser/ast/stmt_node.hh"
+#include "parser/ast/test_node.hh"
 #include "parser/ast/var_decl_node.hh"
 
 #include <algorithm>
@@ -34,7 +38,7 @@ struct CgenContext
 {
   CgenContext()
       : isProcedureScope{false}, arguments{}, dataSection{}, roDataSection{},
-        textSection{}, regMgr{}
+        textSection{}, labelMgr{}, regMgr{}
   {
     dataSection << ".section .data\n";
     roDataSection << ".section .rodata\n";
@@ -99,6 +103,7 @@ struct CgenContext
   std::stringstream roDataSection;
   std::stringstream textSection;
   std::stringstream globalSection;
+  LabelManager labelMgr;
   ScratchRegisterManager regMgr;
 };
 
@@ -175,8 +180,8 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     const auto plusExprNode =
         std::dynamic_pointer_cast<parser::PlusExprNode>(exprNode);
 
-    auto leftExprReg = cgen(plusExprNode->getLhsExpr(), ctx);
-    auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
+    const auto leftExprReg = cgen(plusExprNode->getLhsExpr(), ctx);
+    const auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
 
     if (leftExprReg == ScratchRegister::NONE &&
         rightExprReg == ScratchRegister::NONE)
@@ -220,6 +225,92 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
   }
 
   return ScratchRegister::NONE;
+}
+
+auto cgen(const std::shared_ptr<parser::TestNode> testNode, CgenContext &ctx)
+    -> ScratchRegister
+{
+  switch (testNode->getType())
+  {
+  case parser::TestNodeType::LE_TEST: {
+    const auto comparisonTestNode =
+        std::dynamic_pointer_cast<parser::ComparisonTestNode>(testNode);
+
+    const auto leftExprReg = cgen(comparisonTestNode->getLhsExprNode(), ctx);
+    const auto rightExprReg = cgen(comparisonTestNode->getRhsExprNode(), ctx);
+
+    const auto leTrueLabel = ctx.labelMgr.genLabel("le_true");
+    const auto leFalseLabel = ctx.labelMgr.genLabel("le_false");
+    const auto leDoneLabel = ctx.labelMgr.genLabel("le_done");
+
+    if (leftExprReg == ScratchRegister::NONE &&
+        rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "cmp %rsp, 8(%rsp)\n"
+                      << "add $16, %rsp\n"
+                      << "jl " << leTrueLabel << "\n"
+                      << leFalseLabel << ":\n"
+                      << "push $0\n"
+                      << "jmp " << leDoneLabel << "\n"
+                      << leTrueLabel << ":\n"
+                      << "push $1\n"
+                      << leDoneLabel << ":\n";
+      return ScratchRegister::NONE;
+    }
+
+    if (leftExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "cmp " << scratchRegisterStringMap.at(leftExprReg)
+                      << ", %rsp\n"
+                      << "pop\n"
+                      << "jl " << leTrueLabel << "\n"
+                      << leFalseLabel << ":\n"
+                      << "mov $0, " << scratchRegisterStringMap.at(rightExprReg)
+                      << "\n"
+                      << "jmp " << leDoneLabel << "\n"
+                      << leTrueLabel << ":\n"
+                      << "mov $1, " << scratchRegisterStringMap.at(rightExprReg)
+                      << "\n"
+                      << leDoneLabel << ":\n";
+      return rightExprReg;
+    }
+
+    if (rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "cmp %rsp, "
+                      << scratchRegisterStringMap.at(leftExprReg) << "\n"
+                      << "pop\n"
+                      << "jl " << leTrueLabel << "\n"
+                      << leFalseLabel << ":\n"
+                      << "mov $0, " << scratchRegisterStringMap.at(leftExprReg)
+                      << "\n"
+                      << "jmp " << leDoneLabel << "\n"
+                      << leTrueLabel << ":\n"
+                      << "mov $1, " << scratchRegisterStringMap.at(leftExprReg)
+                      << "\n"
+                      << leDoneLabel << ":\n";
+      return leftExprReg;
+    }
+
+    ctx.textSection << "cmp " << scratchRegisterStringMap.at(rightExprReg)
+                    << ", " << scratchRegisterStringMap.at(leftExprReg) << "\n"
+                    << "jl " << leTrueLabel << "\n"
+                    << leFalseLabel << ":\n"
+                    << "mov $0, " << scratchRegisterStringMap.at(rightExprReg)
+                    << "\n"
+                    << "jmp " << leDoneLabel << "\n"
+                    << leTrueLabel << ":\n"
+                    << "mov $1, " << scratchRegisterStringMap.at(rightExprReg)
+                    << "\n"
+                    << leDoneLabel << ":\n";
+    ctx.regMgr.free(leftExprReg);
+    return rightExprReg;
+  }
+  default: {
+    const auto errMsg = std::string{"codegen error: unsupported test type."};
+    assert(errMsg.c_str() && false);
+  }
+  }
 }
 
 auto cgen(const std::shared_ptr<parser::StmtNode> stmtNode, CgenContext &ctx)
@@ -297,6 +388,37 @@ auto cgen(const std::shared_ptr<parser::StmtNode> stmtNode, CgenContext &ctx)
     const auto frameOffset = callStmtNode->getArguments().size() * 8;
     if (frameOffset > 0)
       ctx.textSection << "add $" << frameOffset << ", %rsp\n";
+
+    break;
+  }
+  case parser::StmtNodeType::IF_STMT: {
+    const auto ifStmtNode =
+        std::dynamic_pointer_cast<parser::IfStmtNode>(stmtNode);
+
+    const auto testReg = cgen(ifStmtNode->getTestNode(), ctx);
+
+    const auto ifTrueLabel = ctx.labelMgr.genLabel("if_true");
+    const auto ifDoneLabel = ctx.labelMgr.genLabel("if_done");
+
+    if (testReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "cmp $1, %rsp\n"
+                      << "pop\n";
+    }
+    else
+    {
+      ctx.textSection << "cmp $1, " << scratchRegisterStringMap.at(testReg)
+                      << "\n";
+
+      ctx.regMgr.free(testReg);
+    }
+
+    ctx.textSection << "jne " << ifDoneLabel << "\n" << ifTrueLabel << ":\n";
+
+    for (const auto &statement : ifStmtNode->getStatements())
+      cgen(statement, ctx);
+
+    ctx.textSection << ifDoneLabel << ":\n";
 
     break;
   }

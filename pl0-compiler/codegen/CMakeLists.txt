@@ -1,4 +1,5 @@
-add_library(codegen codegen/codegen.cc codegen/scratch_register_manager.cc)
+add_library(codegen codegen/codegen.cc codegen/scratch_register_manager.cc
+                    codegen/label_manager.cc)
 target_include_directories(codegen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(codegen parser)
 

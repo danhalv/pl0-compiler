@@ -17,16 +17,10 @@ int main(void)
   //    "module myModule; procedure foo(x : int, y : int);"
   //    "const z : int = y; var a : int; begin a := x; output := a; output :=
   //    z;" "end foo; begin foo(3, 6); end myModule."};
-  const auto textString =
-      std::string{"module myModule;"
-                  "procedure foo(x : int, y : int, z : int);"
-                  //"const z : int = x;"
-                  "procedure bar(a : int);"
-                  "begin output := a;"
-                  "end bar;"
-                  "begin bar(y);"
-                  "end foo;"
-                  "begin foo(2, 3, 4); end myModule."};
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 1 < 2 then output := 1; end;"
+                                      "if 1 < 2 then output := 2; end;"
+                                      "end myModule."};
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());
 
