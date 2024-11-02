@@ -535,8 +535,8 @@ auto cgen(std::shared_ptr<parser::DeclNode> declNode, CgenContext &ctx) -> void
       }
       else
       {
-        ctx.roDataSection << constDeclNode->getDeclId() << ": .value "
-                          << exprInt << "\n";
+        ctx.roDataSection << constDeclNode->getDeclId() << ": .quad " << exprInt
+                          << "\n";
       }
 
       break;
@@ -595,7 +595,7 @@ auto cgen(std::shared_ptr<parser::DeclNode> declNode, CgenContext &ctx) -> void
     }
     else
     {
-      ctx.dataSection << varId << ": .value 0\n";
+      ctx.dataSection << varId << ": .quad 0\n";
     }
 
     break;
