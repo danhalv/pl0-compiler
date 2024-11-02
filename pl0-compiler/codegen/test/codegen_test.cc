@@ -121,3 +121,19 @@ TEST(CodegenIfStmtTest, noOutputOnFalse)
 
   ASSERT_EQ(programOutput, "");
 }
+
+TEST(CodegenWhileStmtTest, outputWhileTrue)
+{
+  const auto textString =
+      std::string{"module myModule;"
+                  "var x : int;"
+                  "begin while x < 3 do output := x; x := x + 1; end;"
+                  "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "0\n1\n2\n");
+}

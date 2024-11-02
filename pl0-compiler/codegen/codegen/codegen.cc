@@ -20,6 +20,7 @@
 #include "parser/ast/stmt_node.hh"
 #include "parser/ast/test_node.hh"
 #include "parser/ast/var_decl_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -443,6 +444,38 @@ auto cgen(const std::shared_ptr<parser::StmtNode> stmtNode, CgenContext &ctx)
       ctx.regMgr.free(reg);
     }
 
+    break;
+  }
+  case parser::StmtNodeType::WHILE_STMT: {
+    const auto whileStmtNode =
+        std::dynamic_pointer_cast<parser::WhileStmtNode>(stmtNode);
+
+    const auto loopLabel = ctx.labelMgr.genLabel("loop");
+    const auto loopDoneLabel = ctx.labelMgr.genLabel("loop");
+
+    ctx.textSection << loopLabel << ":\n";
+
+    const auto testReg = cgen(whileStmtNode->getTestNode(), ctx);
+
+    if (testReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "cmp $1, %rsp\n"
+                      << "pop\n";
+    }
+    else
+    {
+      ctx.textSection << "cmp $1, " << scratchRegisterStringMap.at(testReg)
+                      << "\n";
+    }
+
+    ctx.textSection << "jne " << loopDoneLabel << "\n";
+
+    for (const auto &statement : whileStmtNode->getStatements())
+      cgen(statement, ctx);
+
+    ctx.textSection << "jmp " << loopLabel << "\n" << loopDoneLabel << ":\n";
+
+    ctx.regMgr.free(testReg);
     break;
   }
   default: {
