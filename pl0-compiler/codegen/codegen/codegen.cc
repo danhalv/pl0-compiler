@@ -231,81 +231,104 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
 auto cgen(const std::shared_ptr<parser::TestNode> testNode, CgenContext &ctx)
     -> ScratchRegister
 {
+  auto generateComparisonCodeWithConditionalJump =
+      [&testNode, &ctx](const std::string &jumpInstruction) {
+        const auto comparisonTestNode =
+            std::dynamic_pointer_cast<parser::ComparisonTestNode>(testNode);
+
+        const auto leftExprReg =
+            cgen(comparisonTestNode->getLhsExprNode(), ctx);
+        const auto rightExprReg =
+            cgen(comparisonTestNode->getRhsExprNode(), ctx);
+
+        const auto cmpTrueLabel = ctx.labelMgr.genLabel("le_true");
+        const auto cmpFalseLabel = ctx.labelMgr.genLabel("le_false");
+        const auto cmpDoneLabel = ctx.labelMgr.genLabel("le_done");
+
+        if (leftExprReg == ScratchRegister::NONE &&
+            rightExprReg == ScratchRegister::NONE)
+        {
+          ctx.textSection << "cmp %rsp, 8(%rsp)\n"
+                          << "add $16, %rsp\n"
+                          << jumpInstruction << " " << cmpTrueLabel << "\n"
+                          << cmpFalseLabel << ":\n"
+                          << "push $0\n"
+                          << "jmp " << cmpDoneLabel << "\n"
+                          << cmpTrueLabel << ":\n"
+                          << "push $1\n"
+                          << cmpDoneLabel << ":\n";
+          return ScratchRegister::NONE;
+        }
+
+        if (leftExprReg == ScratchRegister::NONE)
+        {
+          ctx.textSection << "cmp " << scratchRegisterStringMap.at(leftExprReg)
+                          << ", %rsp\n"
+                          << "pop\n"
+                          << jumpInstruction << " " << cmpTrueLabel << "\n"
+                          << cmpFalseLabel << ":\n"
+                          << "mov $0, "
+                          << scratchRegisterStringMap.at(rightExprReg) << "\n"
+                          << "jmp " << cmpDoneLabel << "\n"
+                          << cmpTrueLabel << ":\n"
+                          << "mov $1, "
+                          << scratchRegisterStringMap.at(rightExprReg) << "\n"
+                          << cmpDoneLabel << ":\n";
+          return rightExprReg;
+        }
+
+        if (rightExprReg == ScratchRegister::NONE)
+        {
+          ctx.textSection << "cmp %rsp, "
+                          << scratchRegisterStringMap.at(leftExprReg) << "\n"
+                          << "pop\n"
+                          << jumpInstruction << " " << cmpTrueLabel << "\n"
+                          << cmpFalseLabel << ":\n"
+                          << "mov $0, "
+                          << scratchRegisterStringMap.at(leftExprReg) << "\n"
+                          << "jmp " << cmpDoneLabel << "\n"
+                          << cmpTrueLabel << ":\n"
+                          << "mov $1, "
+                          << scratchRegisterStringMap.at(leftExprReg) << "\n"
+                          << cmpDoneLabel << ":\n";
+          return leftExprReg;
+        }
+
+        ctx.textSection << "cmp " << scratchRegisterStringMap.at(rightExprReg)
+                        << ", " << scratchRegisterStringMap.at(leftExprReg)
+                        << "\n"
+                        << jumpInstruction << " " << cmpTrueLabel << "\n"
+                        << cmpFalseLabel << ":\n"
+                        << "mov $0, "
+                        << scratchRegisterStringMap.at(rightExprReg) << "\n"
+                        << "jmp " << cmpDoneLabel << "\n"
+                        << cmpTrueLabel << ":\n"
+                        << "mov $1, "
+                        << scratchRegisterStringMap.at(rightExprReg) << "\n"
+                        << cmpDoneLabel << ":\n";
+        ctx.regMgr.free(leftExprReg);
+        return rightExprReg;
+      };
+
   switch (testNode->getType())
   {
+  case parser::TestNodeType::EQ_TEST: {
+    return generateComparisonCodeWithConditionalJump("je");
+  }
   case parser::TestNodeType::LE_TEST: {
-    const auto comparisonTestNode =
-        std::dynamic_pointer_cast<parser::ComparisonTestNode>(testNode);
-
-    const auto leftExprReg = cgen(comparisonTestNode->getLhsExprNode(), ctx);
-    const auto rightExprReg = cgen(comparisonTestNode->getRhsExprNode(), ctx);
-
-    const auto leTrueLabel = ctx.labelMgr.genLabel("le_true");
-    const auto leFalseLabel = ctx.labelMgr.genLabel("le_false");
-    const auto leDoneLabel = ctx.labelMgr.genLabel("le_done");
-
-    if (leftExprReg == ScratchRegister::NONE &&
-        rightExprReg == ScratchRegister::NONE)
-    {
-      ctx.textSection << "cmp %rsp, 8(%rsp)\n"
-                      << "add $16, %rsp\n"
-                      << "jl " << leTrueLabel << "\n"
-                      << leFalseLabel << ":\n"
-                      << "push $0\n"
-                      << "jmp " << leDoneLabel << "\n"
-                      << leTrueLabel << ":\n"
-                      << "push $1\n"
-                      << leDoneLabel << ":\n";
-      return ScratchRegister::NONE;
-    }
-
-    if (leftExprReg == ScratchRegister::NONE)
-    {
-      ctx.textSection << "cmp " << scratchRegisterStringMap.at(leftExprReg)
-                      << ", %rsp\n"
-                      << "pop\n"
-                      << "jl " << leTrueLabel << "\n"
-                      << leFalseLabel << ":\n"
-                      << "mov $0, " << scratchRegisterStringMap.at(rightExprReg)
-                      << "\n"
-                      << "jmp " << leDoneLabel << "\n"
-                      << leTrueLabel << ":\n"
-                      << "mov $1, " << scratchRegisterStringMap.at(rightExprReg)
-                      << "\n"
-                      << leDoneLabel << ":\n";
-      return rightExprReg;
-    }
-
-    if (rightExprReg == ScratchRegister::NONE)
-    {
-      ctx.textSection << "cmp %rsp, "
-                      << scratchRegisterStringMap.at(leftExprReg) << "\n"
-                      << "pop\n"
-                      << "jl " << leTrueLabel << "\n"
-                      << leFalseLabel << ":\n"
-                      << "mov $0, " << scratchRegisterStringMap.at(leftExprReg)
-                      << "\n"
-                      << "jmp " << leDoneLabel << "\n"
-                      << leTrueLabel << ":\n"
-                      << "mov $1, " << scratchRegisterStringMap.at(leftExprReg)
-                      << "\n"
-                      << leDoneLabel << ":\n";
-      return leftExprReg;
-    }
-
-    ctx.textSection << "cmp " << scratchRegisterStringMap.at(rightExprReg)
-                    << ", " << scratchRegisterStringMap.at(leftExprReg) << "\n"
-                    << "jl " << leTrueLabel << "\n"
-                    << leFalseLabel << ":\n"
-                    << "mov $0, " << scratchRegisterStringMap.at(rightExprReg)
-                    << "\n"
-                    << "jmp " << leDoneLabel << "\n"
-                    << leTrueLabel << ":\n"
-                    << "mov $1, " << scratchRegisterStringMap.at(rightExprReg)
-                    << "\n"
-                    << leDoneLabel << ":\n";
-    ctx.regMgr.free(leftExprReg);
-    return rightExprReg;
+    return generateComparisonCodeWithConditionalJump("jl");
+  }
+  case parser::TestNodeType::LEQ_TEST: {
+    return generateComparisonCodeWithConditionalJump("jle");
+  }
+  case parser::TestNodeType::GE_TEST: {
+    return generateComparisonCodeWithConditionalJump("jg");
+  }
+  case parser::TestNodeType::GEQ_TEST: {
+    return generateComparisonCodeWithConditionalJump("jge");
+  }
+  case parser::TestNodeType::NEQ_TEST: {
+    return generateComparisonCodeWithConditionalJump("jne");
   }
   default: {
     const auto errMsg = std::string{"codegen error: unsupported test type."};

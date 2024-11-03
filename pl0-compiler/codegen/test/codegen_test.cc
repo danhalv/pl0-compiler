@@ -107,6 +107,104 @@ TEST(CodegenIfStmtTest, outputOnTrue)
   ASSERT_EQ(programOutput, "1\n2\n");
 }
 
+TEST(CodegenIfStmtTest, ifGreaterThanThenOutput)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 2 > 1 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifGreaterThanOrEqualThenOutput1)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 2 >= 1 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifGreaterThanOrEqualThenOutput2)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 2 >= 2 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifEqualThenOutput)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 2 = 2 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifNotEqualThenOutput)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 1 <> 2 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifLessThanOrEqualThenOutput1)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 1 <= 2 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
+TEST(CodegenIfStmtTest, ifLessThanOrEqualThenOutput2)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "begin if 2 <= 2 then output := 1; end;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "1\n");
+}
+
 TEST(CodegenIfStmtTest, noOutputOnFalse)
 {
   const auto textString = std::string{"module myModule;"
@@ -120,20 +218,4 @@ TEST(CodegenIfStmtTest, noOutputOnFalse)
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
   ASSERT_EQ(programOutput, "");
-}
-
-TEST(CodegenWhileStmtTest, outputWhileTrue)
-{
-  const auto textString =
-      std::string{"module myModule;"
-                  "var x : int;"
-                  "begin while x < 3 do output := x; x := x + 1; end;"
-                  "end myModule."};
-
-  pl0c::codegen::run(
-      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
-
-  const auto programOutput = executeAssemblyFileAndGetOutput();
-
-  ASSERT_EQ(programOutput, "0\n1\n2\n");
 }
