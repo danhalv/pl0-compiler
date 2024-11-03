@@ -30,7 +30,7 @@ auto executeAssemblyFileAndGetOutput() -> std::string
   return fileContent;
 }
 
-TEST(CodegenAdditionTest, addTwoIntegers)
+TEST(CodegenArithmeticTest, addTwoIntegers)
 {
   const auto textString =
       std::string{"module myModule; begin output := 10 + 15; end myModule."};
@@ -41,6 +41,45 @@ TEST(CodegenAdditionTest, addTwoIntegers)
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
   ASSERT_EQ(programOutput, "25\n");
+}
+
+TEST(CodegenArithmeticTest, subtractTwoIntegers)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := 5 - 3; end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "2\n");
+}
+
+TEST(CodegenArithmeticTest, divideTwoIntegers)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := 6 / 2; end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "3\n");
+}
+
+TEST(CodegenArithmeticTest, multiplyTwoIntegers)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := 4 * 3; end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "12\n");
 }
 
 TEST(CodegenAssignTest, assignDeclaredVariable)

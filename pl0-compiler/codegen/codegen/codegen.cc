@@ -9,10 +9,13 @@
 #include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
+#include "parser/ast/division_expr_node.hh"
 #include "parser/ast/expr_node.hh"
 #include "parser/ast/id_expr_node.hh"
 #include "parser/ast/if_stmt_node.hh"
 #include "parser/ast/int_expr_node.hh"
+#include "parser/ast/minus_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -111,6 +114,43 @@ struct CgenContext
 auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     -> ScratchRegister
 {
+  auto generateArithmeticCode = [&ctx](const std::string &arithmeticInstruction,
+                                       const ScratchRegister leftExprReg,
+                                       const ScratchRegister rightExprReg) {
+    if (leftExprReg == ScratchRegister::NONE &&
+        rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "pop %rax\n"
+                      << arithmeticInstruction << " %rsp, %rax\n"
+                      << "pop\n"
+                      << "push %rax\n";
+      return ScratchRegister::NONE;
+    }
+
+    if (leftExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "pop %rax\n"
+                      << arithmeticInstruction << " "
+                      << scratchRegisterStringMap.at(rightExprReg)
+                      << ", %rax\n";
+      return rightExprReg;
+    }
+
+    if (rightExprReg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "pop %rax\n"
+                      << arithmeticInstruction << " "
+                      << scratchRegisterStringMap.at(leftExprReg) << ", %rax\n";
+      return leftExprReg;
+    }
+
+    ctx.textSection << arithmeticInstruction << " "
+                    << scratchRegisterStringMap.at(leftExprReg) << ", "
+                    << scratchRegisterStringMap.at(rightExprReg) << "\n";
+    ctx.regMgr.free(leftExprReg);
+    return rightExprReg;
+  };
+
   switch (exprNode->getType())
   {
   case parser::ExprNodeType::ID_EXPR: {
@@ -177,18 +217,22 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
 
     return reg;
   }
-  case parser::ExprNodeType::PLUS_EXPR: {
-    const auto plusExprNode =
-        std::dynamic_pointer_cast<parser::PlusExprNode>(exprNode);
+  case parser::ExprNodeType::DIVISION_EXPR: {
+    const auto divisionExprNode =
+        std::dynamic_pointer_cast<parser::DivisionExprNode>(exprNode);
 
-    const auto leftExprReg = cgen(plusExprNode->getLhsExpr(), ctx);
-    const auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
+    // swapped orders of left and right expressions for idiv instruction
+    const auto rightExprReg = cgen(divisionExprNode->getLhsExpr(), ctx);
+    const auto leftExprReg = cgen(divisionExprNode->getRhsExpr(), ctx);
+
+    // idiv works on rdx:rax
+    ctx.textSection << "mov $0, %rdx\n";
 
     if (leftExprReg == ScratchRegister::NONE &&
         rightExprReg == ScratchRegister::NONE)
     {
       ctx.textSection << "pop %rax\n"
-                      << "add %rsp, %rax\n"
+                      << "idiv %rsp\n"
                       << "pop\n"
                       << "push %rax\n";
       return ScratchRegister::NONE;
@@ -197,26 +241,59 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     if (leftExprReg == ScratchRegister::NONE)
     {
       ctx.textSection << "pop %rax\n"
-                      << "add " << scratchRegisterStringMap.at(rightExprReg)
-                      << ", %rax\n"
-                      << "\n";
+                      << "idiv " << scratchRegisterStringMap.at(rightExprReg)
+                      << "\n"
+                      << "mov %rax, "
+                      << scratchRegisterStringMap.at(rightExprReg) << "\n";
       return rightExprReg;
     }
 
     if (rightExprReg == ScratchRegister::NONE)
     {
       ctx.textSection << "pop %rax\n"
-                      << "add " << scratchRegisterStringMap.at(leftExprReg)
-                      << ", %rax\n"
-                      << "\n";
+                      << "idiv " << scratchRegisterStringMap.at(leftExprReg)
+                      << "\n"
+                      << "mov %rax, "
+                      << scratchRegisterStringMap.at(leftExprReg) << "\n";
       return leftExprReg;
     }
 
-    ctx.textSection << "add " << scratchRegisterStringMap.at(leftExprReg)
-                    << ", " << scratchRegisterStringMap.at(rightExprReg)
+    ctx.textSection << "mov " << scratchRegisterStringMap.at(rightExprReg)
+                    << ", %rax\n"
+                    << "idiv " << scratchRegisterStringMap.at(leftExprReg)
+                    << "\n"
+                    << "mov %rax, " << scratchRegisterStringMap.at(rightExprReg)
                     << "\n";
     ctx.regMgr.free(leftExprReg);
     return rightExprReg;
+  }
+  case parser::ExprNodeType::MINUS_EXPR: {
+    const auto minusExprNode =
+        std::dynamic_pointer_cast<parser::MinusExprNode>(exprNode);
+
+    const auto leftExprReg = cgen(minusExprNode->getLhsExpr(), ctx);
+    const auto rightExprReg = cgen(minusExprNode->getRhsExpr(), ctx);
+
+    // swapped order of left and right expressions for sub instruction
+    return generateArithmeticCode("sub", rightExprReg, leftExprReg);
+  }
+  case parser::ExprNodeType::MULTIPLICATION_EXPR: {
+    const auto multiplicationExprNode =
+        std::dynamic_pointer_cast<parser::MultiplicationExprNode>(exprNode);
+
+    const auto leftExprReg = cgen(multiplicationExprNode->getLhsExpr(), ctx);
+    const auto rightExprReg = cgen(multiplicationExprNode->getRhsExpr(), ctx);
+
+    return generateArithmeticCode("imul", leftExprReg, rightExprReg);
+  }
+  case parser::ExprNodeType::PLUS_EXPR: {
+    const auto plusExprNode =
+        std::dynamic_pointer_cast<parser::PlusExprNode>(exprNode);
+
+    const auto leftExprReg = cgen(plusExprNode->getLhsExpr(), ctx);
+    const auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
+
+    return generateArithmeticCode("add", leftExprReg, rightExprReg);
   }
   default: {
     const auto errMsg =
