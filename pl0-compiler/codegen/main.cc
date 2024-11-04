@@ -18,7 +18,8 @@ int main(void)
   //    "const z : int = y; var a : int; begin a := x; output := a; output :=
   //    z;" "end foo; begin foo(3, 6); end myModule."};
   const auto textString = std::string{"module myModule;"
-                                      "begin output := 1 + 2 * 3;"
+                                      "var x : int;"
+                                      "begin x := input; output := x;"
                                       "end myModule."};
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());

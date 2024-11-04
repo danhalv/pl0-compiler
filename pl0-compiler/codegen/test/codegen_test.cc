@@ -30,6 +30,23 @@ auto executeAssemblyFileAndGetOutput() -> std::string
   return fileContent;
 }
 
+auto executeAssemblyFileWithInputAndGetOutput(const std::string &input)
+    -> std::string
+{
+  const auto outputFileName = std::string{"out.txt"};
+
+  system("as -o program.o program.asm");
+  system("ld -o program -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc "
+         "program.o");
+  system(std::string{"echo " + input + " | ./program > " + outputFileName}
+             .c_str());
+
+  std::string fileContent;
+  std::getline(std::ifstream("out.txt"), fileContent, '\0');
+
+  return fileContent;
+}
+
 TEST(CodegenArithmeticTest, addTwoIntegers)
 {
   const auto textString =
@@ -257,4 +274,19 @@ TEST(CodegenIfStmtTest, noOutputOnFalse)
   const auto programOutput = executeAssemblyFileAndGetOutput();
 
   ASSERT_EQ(programOutput, "");
+}
+
+TEST(CodegenInputStmtTest, outputInput)
+{
+  const auto textString = std::string{"module myModule;"
+                                      "var x : int;"
+                                      "begin x := input; output := x;"
+                                      "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileWithInputAndGetOutput("4");
+
+  ASSERT_EQ(programOutput, "4\n");
 }

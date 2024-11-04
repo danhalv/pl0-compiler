@@ -46,7 +46,7 @@ struct CgenContext
   {
     dataSection << ".section .data\n";
     roDataSection << ".section .rodata\n";
-    globalSection << ".global _start, printf, exit";
+    globalSection << ".global _start, printf, scanf, exit";
   }
 
   auto isLocalVariable(const std::string &variableId) const -> bool
@@ -198,6 +198,15 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     }
 
     return reg;
+  }
+  case parser::ExprNodeType::INPUT_EXPR: {
+
+    ctx.textSection << "sub $8, %rsp\n"
+                    << "lea (%rsp), %rsi\n"
+                    << "lea input_format, %rdi\n"
+                    << "call scanf\n";
+
+    return ScratchRegister::NONE;
   }
   case parser::ExprNodeType::INT_EXPR: {
     const auto intExprNode =
@@ -532,14 +541,14 @@ auto cgen(const std::shared_ptr<parser::StmtNode> stmtNode, CgenContext &ctx)
     if (reg == ScratchRegister::NONE)
     {
       ctx.textSection << "pop %rsi\n"
-                      << "lea format, %rdi\n"
+                      << "lea output_format, %rdi\n"
                       << "call printf\n";
     }
     else
     {
       ctx.textSection << "mov " << scratchRegisterStringMap.at(reg)
                       << ", %rsi\n"
-                      << "lea format, %rdi\n"
+                      << "lea output_format, %rdi\n"
                       << "call printf\n";
       ctx.regMgr.free(reg);
     }
@@ -731,7 +740,8 @@ auto run(const parser::ProgramNode &programNode) -> void
 
   auto ctx = CgenContext{};
 
-  ctx.roDataSection << "format: .asciz \"%d\\n\"\n";
+  ctx.roDataSection << "input_format: .asciz \"%d\"\n";
+  ctx.roDataSection << "output_format: .asciz \"%d\\n\"\n";
 
   cgen(programNode.getBlockNode(), ctx);
 
