@@ -4,6 +4,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: build commit
@@ -35,6 +36,7 @@ jobs:
   test:
       needs: build
       runs-on: ubuntu-latest
+      timeout-minutes: 10
       steps:
         - uses: actions/checkout@v4
         - name: run tests on commit
