@@ -18,8 +18,8 @@ ComparisonTestNode::ComparisonTestNode(
     const TestNodeType testNodeType,
     const std::shared_ptr<ExprNode> lhsExprNode,
     const std::shared_ptr<ExprNode> rhsExprNode)
-    : testNodeType_{testNodeType}, lhsExprNode_{lhsExprNode},
-      rhsExprNode_{rhsExprNode}
+    : testNodeType_{testNodeType}, lhsExprNode_{lhsExprNode}, rhsExprNode_{
+                                                                  rhsExprNode}
 {
 }
 

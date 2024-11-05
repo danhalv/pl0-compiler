@@ -587,7 +587,7 @@ TEST(ParserMultiplicationExprTest, nestedMultiplicationExpressionTimesId)
 TEST(ParserComparisonTest, integerEquality)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 = 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 = 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -608,7 +608,7 @@ TEST(ParserComparisonTest, integerEquality)
 TEST(ParserComparisonTest, integerInequality)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 <> 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 <> 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -629,7 +629,7 @@ TEST(ParserComparisonTest, integerInequality)
 TEST(ParserComparisonTest, integerLessThan)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 < 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 < 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -650,7 +650,7 @@ TEST(ParserComparisonTest, integerLessThan)
 TEST(ParserComparisonTest, integerLessThanOrEqual)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 <= 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 <= 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -671,7 +671,7 @@ TEST(ParserComparisonTest, integerLessThanOrEqual)
 TEST(ParserComparisonTest, integerGreaterThan)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 > 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 > 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -692,7 +692,7 @@ TEST(ParserComparisonTest, integerGreaterThan)
 TEST(ParserComparisonTest, integerGreaterThanOrEqual)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 >= 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 >= 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -910,7 +910,7 @@ TEST(ParserProgramSymbolTest, missingDotToken)
 TEST(ParserWhileStmtTest, whileOddTest)
 {
   const auto textString = std::string{
-      "module myModule; begin while odd 1 then x := 1; end; end myModule."};
+      "module myModule; begin while odd 1 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);
@@ -931,7 +931,7 @@ TEST(ParserWhileStmtTest, whileOddTest)
 TEST(ParserWhileStmtTest, whileEqualTest)
 {
   const auto textString = std::string{
-      "module myModule; begin while 1 = 2 then x := 1; end; end myModule."};
+      "module myModule; begin while 1 = 2 do x := 1; end; end myModule."};
 
   const auto tokens = pl0c::lexer::run(createText(textString));
   const auto programNode = pl0c::parser::run(tokens);

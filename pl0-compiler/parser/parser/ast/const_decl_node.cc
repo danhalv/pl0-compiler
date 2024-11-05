@@ -9,10 +9,10 @@ namespace parser
 {
 
 ConstDeclNode::ConstDeclNode(const std::string &declId,
-                             const std::shared_ptr<lexer::Token> &declTypeToken,
-                             const std::shared_ptr<lexer::Token> &declExprToken)
-    : declId_{declId}, declTypeToken_{declTypeToken},
-      declExprToken_{declExprToken}
+                             const std::shared_ptr<lexer::Token> declTypeToken,
+                             const std::shared_ptr<lexer::Token> declExprToken)
+    : declId_{declId}, declTypeToken_{declTypeToken}, declExprToken_{
+                                                          declExprToken}
 {
 }
 

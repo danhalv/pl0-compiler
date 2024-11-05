@@ -16,6 +16,7 @@ public:
   IntExprNode(const std::int64_t);
 
   auto getType() const -> ExprNodeType override;
+  auto getValue() const -> std::int64_t;
 
   friend bool operator==(const IntExprNode &, const IntExprNode &);
   friend bool operator!=(const IntExprNode &, const IntExprNode &);
