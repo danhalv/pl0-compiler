@@ -10,5 +10,4 @@ target_link_libraries(codegen_test lexer parser codegen ${GTEST_BOTH_LIBRARIES})
 
 gtest_discover_tests(codegen_test)
 
-add_executable(main main.cc)
-target_link_libraries(main lexer parser codegen)
+# add_executable(main main.cc) target_link_libraries(main lexer parser codegen)

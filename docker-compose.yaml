@@ -26,7 +26,8 @@ services:
     container_name: pl0-compiler_run
     volumes:
       - build:/pl0-compiler/build
-    command: bash -c "cmake ../ && make main && ./pl0-compiler/codegen/main"
+    command: bash -c "cmake ../ && make pl0c && \
+                      ./pl0-compiler/pl0c $FILE"
   test:
     platform: "linux/amd64"
     build: .

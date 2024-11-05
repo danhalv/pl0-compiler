@@ -4,6 +4,7 @@ Checks:
   -bugprone-easily-swappable-parameters,
   clang-analyzer-*,
   cppcoreguidelines-*,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   Wunused-const-variable,
   Wunused-variable,
   Wunused-function

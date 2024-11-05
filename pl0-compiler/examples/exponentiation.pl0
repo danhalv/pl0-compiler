@@ -1,0 +1,29 @@
+module Exponentiation;
+
+var result : int;
+
+procedure calcExponentiation(base : int, exponent : int);
+begin
+  if exponent >= 0
+  then
+    result := 1;
+
+    while exponent > 0
+    do
+      result := result * base;
+      exponent := exponent - 1;
+    end;
+  end;
+
+  if exponent < 0
+  then
+    calcExponentiation(base, -exponent);
+    result := 1 / result;
+  end;
+
+end calcExponentiation;
+
+begin
+  calcExponentiation(input, input);
+  output := result;
+end Exponentiation.
