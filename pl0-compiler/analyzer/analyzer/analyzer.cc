@@ -1,6 +1,8 @@
 #include "analyzer/analyzer.hh"
 
+#include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
+#include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -56,6 +58,9 @@ struct AnalyzerContext
   std::set<std::string> localVariables;
 };
 
+// forward declaration for analyze(DeclNode) function
+auto analyze(const parser::BlockNode &blockNode, AnalyzerContext &ctx) -> void;
+
 auto analyze(const std::shared_ptr<parser::DeclNode> declNode,
              AnalyzerContext &ctx) -> void
 {
@@ -107,6 +112,19 @@ auto analyze(const std::shared_ptr<parser::DeclNode> declNode,
 
     ctx.procedureDeclarations.emplace(id);
 
+    const auto oldIsProcedureScope = ctx.isProcedureScope;
+    const auto oldLocalVariables = ctx.localVariables;
+    const auto oldLocalConstants = ctx.localConstants;
+
+    ctx.isProcedureScope = true;
+    for (const auto &[argumentId, _] : procDeclNode->getArguments())
+      ctx.localVariables.emplace(argumentId);
+    analyze(*procDeclNode->getDeclBlockNode(), ctx);
+
+    ctx.isProcedureScope = oldIsProcedureScope;
+    ctx.localVariables = oldLocalVariables;
+    ctx.localConstants = oldLocalConstants;
+
     break;
   }
   case parser::DeclNodeType::VAR_DECL: {
@@ -144,10 +162,55 @@ auto analyze(const std::shared_ptr<parser::DeclNode> declNode,
   }
 }
 
+auto analyze(const std::shared_ptr<parser::StmtNode> stmtNode,
+             AnalyzerContext &ctx) -> void
+{
+  switch (stmtNode->getType())
+  {
+  case parser::StmtNodeType::ASSIGN_STMT: {
+    const auto assignId =
+        std::dynamic_pointer_cast<parser::AssignStmtNode>(stmtNode)
+            ->getLValueId();
+
+    if ((ctx.localVariables.find(assignId) == ctx.localVariables.end()) &&
+        (ctx.globalVariables.find(assignId) == ctx.globalVariables.end()))
+    {
+      const auto errMsg = std::string{
+          "analyzer error: trying to assign to variable with id: " + assignId +
+          ", which hasn't been declared."};
+      assert(errMsg.c_str() && false);
+    }
+
+    break;
+  }
+  case parser::StmtNodeType::CALL_STMT: {
+    const auto procId =
+        std::dynamic_pointer_cast<parser::CallStmtNode>(stmtNode)->getProcId();
+
+    if (ctx.procedureDeclarations.find(procId) ==
+        ctx.procedureDeclarations.end())
+    {
+      const auto errMsg = std::string{
+          "analyzer error: trying to call procedure with id: " + procId +
+          ", which hasn't been declared."};
+      assert(errMsg.c_str() && false);
+    }
+
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+}
+
 auto analyze(const parser::BlockNode &blockNode, AnalyzerContext &ctx) -> void
 {
   for (const auto &declaration : blockNode.getDeclarations())
     analyze(declaration, ctx);
+
+  for (const auto &statement : blockNode.getStatements())
+    analyze(statement, ctx);
 }
 
 auto run(const parser::ProgramNode &programNode) -> void
