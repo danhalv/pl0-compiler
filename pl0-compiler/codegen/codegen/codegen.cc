@@ -16,6 +16,7 @@
 #include "parser/ast/int_expr_node.hh"
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
+#include "parser/ast/negative_expr_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -303,6 +304,24 @@ auto cgen(const std::shared_ptr<parser::ExprNode> exprNode, CgenContext &ctx)
     const auto rightExprReg = cgen(plusExprNode->getRhsExpr(), ctx);
 
     return generateArithmeticCode("add", leftExprReg, rightExprReg);
+  }
+  case parser::ExprNodeType::NEGATIVE_EXPR: {
+    const auto negativeExprNode =
+        std::dynamic_pointer_cast<parser::NegativeExprNode>(exprNode);
+
+    const auto reg = cgen(negativeExprNode->getExprNode(), ctx);
+
+    if (reg == ScratchRegister::NONE)
+    {
+      ctx.textSection << "imul $-1, %rsp\n";
+    }
+    else
+    {
+      ctx.textSection << "imul $-1, " << scratchRegisterStringMap.at(reg)
+                      << "\n";
+    }
+
+    return reg;
   }
   default: {
     const auto errMsg =

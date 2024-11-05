@@ -290,3 +290,19 @@ TEST(CodegenInputStmtTest, outputInput)
 
   ASSERT_EQ(programOutput, "4\n");
 }
+
+TEST(CodegenExprTest, negativeExpressions)
+{
+  const auto textString =
+      std::string{"module myModule;"
+                  "var x : int;"
+                  "begin x := -2; output := x; output := -x;"
+                  "end myModule."};
+
+  pl0c::codegen::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  const auto programOutput = executeAssemblyFileAndGetOutput();
+
+  ASSERT_EQ(programOutput, "-2\n2\n");
+}
