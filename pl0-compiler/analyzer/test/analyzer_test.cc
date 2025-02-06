@@ -10,7 +10,6 @@ auto createText(const std::string &textString) -> std::vector<unsigned char>
 {
   auto text = std::vector<unsigned char>(textString.length());
   text.insert(text.begin(), textString.begin(), textString.end());
-
   return text;
 }
 
@@ -120,6 +119,26 @@ TEST(AnalyzerGlobalTest, negativeExprUndeclaredId)
 {
   const auto textString =
       std::string{"module myModule; begin output := -y; end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerGlobalTest, whileEqualityTestUndeclaredId)
+{
+  const auto textString = std::string{
+      "module myModule; begin while 1 = x do output := 1; end; end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerGlobalTest, ifInequalityTestUndeclaredId)
+{
+  const auto textString = std::string{
+      "module myModule; begin if y <> 2 then output := 1; end; end myModule."};
 
   ASSERT_DEATH(pl0c::analyzer::run(
                    pl0c::parser::run(pl0c::lexer::run(createText(textString)))),

@@ -3,6 +3,7 @@
 #include "parser/ast/assign_stmt_node.hh"
 #include "parser/ast/block_node.hh"
 #include "parser/ast/call_stmt_node.hh"
+#include "parser/ast/comparison_test_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
 #include "parser/ast/division_expr_node.hh"
@@ -15,6 +16,7 @@
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/stmt_node.hh"
+#include "parser/ast/test_node.hh"
 #include "parser/ast/var_decl_node.hh"
 #include "parser/ast/while_stmt_node.hh"
 
@@ -128,6 +130,31 @@ auto analyze(const std::shared_ptr<parser::ExprNode> exprNode,
         std::dynamic_pointer_cast<parser::NegativeExprNode>(exprNode);
 
     analyze(negativeExprNode->getExprNode(), ctx);
+
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+}
+
+auto analyze(const std::shared_ptr<parser::TestNode> testNode,
+             AnalyzerContext &ctx) -> void
+{
+  switch (testNode->getType())
+  {
+  case parser::TestNodeType::EQ_TEST:
+  case parser::TestNodeType::GE_TEST:
+  case parser::TestNodeType::GEQ_TEST:
+  case parser::TestNodeType::LE_TEST:
+  case parser::TestNodeType::LEQ_TEST:
+  case parser::TestNodeType::NEQ_TEST: {
+    const auto comparisonTestNode =
+        std::dynamic_pointer_cast<parser::ComparisonTestNode>(testNode);
+
+    analyze(comparisonTestNode->getLhsExprNode(), ctx);
+    analyze(comparisonTestNode->getRhsExprNode(), ctx);
 
     break;
   }
@@ -281,6 +308,8 @@ auto analyze(const std::shared_ptr<parser::StmtNode> stmtNode,
     const auto ifStmtNode =
         std::dynamic_pointer_cast<parser::IfStmtNode>(stmtNode);
 
+    analyze(ifStmtNode->getTestNode(), ctx);
+
     for (const auto &statement : ifStmtNode->getStatements())
       analyze(statement, ctx);
 
@@ -289,6 +318,8 @@ auto analyze(const std::shared_ptr<parser::StmtNode> stmtNode,
   case parser::StmtNodeType::WHILE_STMT: {
     const auto whileStmtNode =
         std::dynamic_pointer_cast<parser::WhileStmtNode>(stmtNode);
+
+    analyze(whileStmtNode->getTestNode(), ctx);
 
     for (const auto &statement : whileStmtNode->getStatements())
       analyze(statement, ctx);
