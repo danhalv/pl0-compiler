@@ -12,6 +12,7 @@
 #include "parser/ast/minus_expr_node.hh"
 #include "parser/ast/multiplication_expr_node.hh"
 #include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/odd_test_node.hh"
 #include "parser/ast/out_stmt_node.hh"
 #include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
@@ -155,6 +156,14 @@ auto analyze(const std::shared_ptr<parser::TestNode> testNode,
 
     analyze(comparisonTestNode->getLhsExprNode(), ctx);
     analyze(comparisonTestNode->getRhsExprNode(), ctx);
+
+    break;
+  }
+  case parser::TestNodeType::ODD_TEST: {
+    const auto oddTestNode =
+        std::dynamic_pointer_cast<parser::OddTestNode>(testNode);
+
+    analyze(oddTestNode->getExprNode(), ctx);
 
     break;
   }

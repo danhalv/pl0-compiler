@@ -189,6 +189,18 @@ TEST(AnalyzerLocalTest, whileUndeclaredId)
                "");
 }
 
+TEST(AnalyzerLocalTest, whileOddTestUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; procedure myProcedure (); begin "
+                  "while odd x do output := 1; end;"
+                  "end myProcedure; begin end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
 TEST(AnalyzerLocalTest, varRedeclaresProcedureId)
 {
   const auto textString =
