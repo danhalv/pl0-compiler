@@ -96,6 +96,80 @@ TEST(AnalyzerGlobalTest, callToUndeclaredFunction)
                "");
 }
 
+TEST(AnalyzerGlobalTest, addUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := x + 1; end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerGlobalTest, divisionExprUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := x / 2; end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerGlobalTest, negativeExprUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; begin output := -y; end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerLocalTest, subtractUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; procedure foo (); begin "
+                  "output := x - 2; end foo; begin end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerLocalTest, multiplicationExprUndeclaredId)
+{
+  const auto textString =
+      std::string{"module myModule; procedure foo (); begin output := 2 * x; "
+                  "end foo; begin end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerLocalTest, ifUndeclaredId)
+{
+  const auto textString = std::string{
+      "module myModule; procedure myProcedure (); begin if odd 1 then x := 1; "
+      "end; end myProcedure; begin myProcedure(); end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
+TEST(AnalyzerLocalTest, whileUndeclaredId)
+{
+  const auto textString = std::string{
+      "module myModule; procedure myProcedure (); begin while odd 1 do "
+      "output := x; end; end myProcedure; begin myProcedure(); end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
 TEST(AnalyzerLocalTest, varRedeclaresProcedureId)
 {
   const auto textString =

@@ -5,9 +5,18 @@
 #include "parser/ast/call_stmt_node.hh"
 #include "parser/ast/const_decl_node.hh"
 #include "parser/ast/decl_node.hh"
+#include "parser/ast/division_expr_node.hh"
+#include "parser/ast/id_expr_node.hh"
+#include "parser/ast/if_stmt_node.hh"
+#include "parser/ast/minus_expr_node.hh"
+#include "parser/ast/multiplication_expr_node.hh"
+#include "parser/ast/negative_expr_node.hh"
+#include "parser/ast/out_stmt_node.hh"
+#include "parser/ast/plus_expr_node.hh"
 #include "parser/ast/proc_decl_node.hh"
 #include "parser/ast/stmt_node.hh"
 #include "parser/ast/var_decl_node.hh"
+#include "parser/ast/while_stmt_node.hh"
 
 #include <cassert>
 #include <memory>
@@ -57,6 +66,76 @@ struct AnalyzerContext
   std::set<std::string> localConstants;
   std::set<std::string> localVariables;
 };
+
+auto analyze(const std::shared_ptr<parser::ExprNode> exprNode,
+             AnalyzerContext &ctx) -> void
+{
+  switch (exprNode->getType())
+  {
+  case parser::ExprNodeType::ID_EXPR: {
+    const auto idExprNode =
+        std::dynamic_pointer_cast<parser::IdExprNode>(exprNode);
+    const auto id = idExprNode->getId();
+
+    if ((ctx.localConstants.find(id) == ctx.localConstants.end()) &&
+        (ctx.localVariables.find(id) == ctx.localVariables.end()) &&
+        (ctx.globalConstants.find(id) == ctx.globalConstants.end()) &&
+        (ctx.globalVariables.find(id) == ctx.globalVariables.end()))
+    {
+      const auto errMsg = std::string{"analyzer error: expression id: " + id +
+                                      ", has not been declared."};
+      assert(errMsg.c_str() && false);
+    }
+  }
+  case parser::ExprNodeType::DIVISION_EXPR: {
+    const auto divExprNode =
+        std::dynamic_pointer_cast<parser::DivisionExprNode>(exprNode);
+
+    analyze(divExprNode->getLhsExpr(), ctx);
+    analyze(divExprNode->getRhsExpr(), ctx);
+
+    break;
+  }
+  case parser::ExprNodeType::MULTIPLICATION_EXPR: {
+    const auto multExprNode =
+        std::dynamic_pointer_cast<parser::MultiplicationExprNode>(exprNode);
+
+    analyze(multExprNode->getLhsExpr(), ctx);
+    analyze(multExprNode->getRhsExpr(), ctx);
+
+    break;
+  }
+  case parser::ExprNodeType::PLUS_EXPR: {
+    const auto plusExprNode =
+        std::dynamic_pointer_cast<parser::PlusExprNode>(exprNode);
+
+    analyze(plusExprNode->getLhsExpr(), ctx);
+    analyze(plusExprNode->getRhsExpr(), ctx);
+
+    break;
+  }
+  case parser::ExprNodeType::MINUS_EXPR: {
+    const auto minusExprNode =
+        std::dynamic_pointer_cast<parser::MinusExprNode>(exprNode);
+
+    analyze(minusExprNode->getLhsExpr(), ctx);
+    analyze(minusExprNode->getRhsExpr(), ctx);
+
+    break;
+  }
+  case parser::ExprNodeType::NEGATIVE_EXPR: {
+    const auto negativeExprNode =
+        std::dynamic_pointer_cast<parser::NegativeExprNode>(exprNode);
+
+    analyze(negativeExprNode->getExprNode(), ctx);
+
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+}
 
 // forward declaration for analyze(DeclNode) function
 auto analyze(const parser::BlockNode &blockNode, AnalyzerContext &ctx) -> void;
@@ -195,6 +274,32 @@ auto analyze(const std::shared_ptr<parser::StmtNode> stmtNode,
           ", which hasn't been declared."};
       assert(errMsg.c_str() && false);
     }
+
+    break;
+  }
+  case parser::StmtNodeType::IF_STMT: {
+    const auto ifStmtNode =
+        std::dynamic_pointer_cast<parser::IfStmtNode>(stmtNode);
+
+    for (const auto &statement : ifStmtNode->getStatements())
+      analyze(statement, ctx);
+
+    break;
+  }
+  case parser::StmtNodeType::WHILE_STMT: {
+    const auto whileStmtNode =
+        std::dynamic_pointer_cast<parser::WhileStmtNode>(stmtNode);
+
+    for (const auto &statement : whileStmtNode->getStatements())
+      analyze(statement, ctx);
+
+    break;
+  }
+  case parser::StmtNodeType::OUT_STMT: {
+    const auto outStmtNode =
+        std::dynamic_pointer_cast<parser::OutStmtNode>(stmtNode);
+
+    analyze(outStmtNode->getExprNode(), ctx);
 
     break;
   }
