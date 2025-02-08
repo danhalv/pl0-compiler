@@ -1,3 +1,4 @@
+#include "analyzer/analyzer.hh"
 #include "codegen/codegen.hh"
 #include "lexer/lexer.hh"
 #include "parser/parser.hh"
@@ -38,8 +39,11 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  pl0c::codegen::run(
-      pl0c::parser::run(pl0c::lexer::run(readFile(std::string{argv[1]}))));
+  const auto ast =
+      pl0c::parser::run(pl0c::lexer::run(readFile(std::string{argv[1]})));
+
+  pl0c::analyzer::run(ast);
+  pl0c::codegen::run(ast);
 
   system("as -o program.o program.asm");
   system("ld -o program -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc "

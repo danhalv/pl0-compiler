@@ -16,4 +16,4 @@ add_subdirectory(analyzer)
 add_subdirectory(codegen)
 
 add_executable(pl0c main.cc)
-target_link_libraries(pl0c lexer parser codegen)
+target_link_libraries(pl0c lexer parser codegen analyzer)
