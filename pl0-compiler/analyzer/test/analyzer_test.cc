@@ -65,6 +65,17 @@ TEST(AnalyzerGlobalTest, varRedeclaration)
                "");
 }
 
+TEST(AnalyzerGlobalTest, outputDeclaredId)
+{
+  const auto textString = std::string{
+      "module myModule; var x : int; begin output := x; end myModule."};
+
+  pl0c::analyzer::run(
+      pl0c::parser::run(pl0c::lexer::run(createText(textString))));
+
+  SUCCEED();
+}
+
 TEST(AnalyzerGlobalTest, varRedeclaresConstId)
 {
   const auto textString = std::string{

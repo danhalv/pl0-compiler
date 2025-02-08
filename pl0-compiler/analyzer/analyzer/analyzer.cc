@@ -89,6 +89,8 @@ auto analyze(const std::shared_ptr<parser::ExprNode> exprNode,
                                       ", has not been declared."};
       assert(errMsg.c_str() && false);
     }
+
+    break;
   }
   case parser::ExprNodeType::DIVISION_EXPR: {
     const auto divExprNode =
