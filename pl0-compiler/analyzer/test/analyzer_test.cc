@@ -34,6 +34,16 @@ TEST(AnalyzerGlobalTest, procedureRedeclaration)
                "");
 }
 
+TEST(AnalyzerGlobalTest, undeclaredProcedureCall)
+{
+  const auto textString = std::string{
+      "module myModule; begin undeclaredProcedure(); end myModule."};
+
+  ASSERT_DEATH(pl0c::analyzer::run(
+                   pl0c::parser::run(pl0c::lexer::run(createText(textString)))),
+               "");
+}
+
 TEST(AnalyzerGlobalTest, varRedeclaresProcedureId)
 {
   const auto textString =
