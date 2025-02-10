@@ -4,28 +4,28 @@ services:
     build: .
     container_name: pl0-compiler_build
     volumes:
-      - build:/pl0-compiler/build
+      - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make all"
   clang-format-check:
     platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_clang-format-check
     volumes:
-      - build:/pl0-compiler/build
+      - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make clang-format-check"
   cmake-format-check:
     platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_cmake-format-check
     volumes:
-      - build:/pl0-compiler/build
+      - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make cmake-format-check"
   run:
     platform: "linux/amd64"
     build: .
     container_name: pl0-compiler_run
     volumes:
-      - build:/pl0-compiler/build
+      - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make pl0c && \
                       ./pl0-compiler/pl0c $FILE"
   test:
@@ -33,9 +33,10 @@ services:
     build: .
     container_name: pl0-compiler_test
     volumes:
-      - build:/pl0-compiler/build
+      - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make all && \
                       cd pl0-compiler/ && ctest --output-on-failure"
 
 volumes:
   build:
+    external: true
