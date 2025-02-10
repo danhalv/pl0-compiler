@@ -27,7 +27,7 @@ services:
     volumes:
       - ./build:/pl0-compiler/build
     command: bash -c "cmake ../ && make pl0c && \
-                      ./pl0-compiler/pl0c $FILE"
+                      ./pl0-compiler/pl0c $ARGS $FILE"
   test:
     platform: "linux/amd64"
     build: .
