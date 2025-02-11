@@ -12,7 +12,8 @@ set(CMAKE_CXX_CLANG_TIDY "/usr/bin/clang-tidy-15")
 
 add_subdirectory(lexer)
 add_subdirectory(parser)
+add_subdirectory(analyzer)
 add_subdirectory(codegen)
 
 add_executable(pl0c main.cc)
-target_link_libraries(pl0c lexer parser codegen)
+target_link_libraries(pl0c lexer parser codegen analyzer)
