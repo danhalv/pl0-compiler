@@ -1,0 +1,13 @@
+module Sum;
+
+var result : int;
+
+procedure sum(a : int, b : int);
+begin
+  result := a + b;
+end sum;
+
+begin
+  sum(3, 4);
+  output := result;
+end Sum.
